@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, SPACING } from '../theme';
 import ScreenHeader from '../components/ScreenHeader';
+import PomodoroTimer from '../components/PomodoroTimer';
 import { useAppStore } from '../store/StoreContext';
 
 export default function HomeScreen() {
@@ -75,6 +76,8 @@ export default function HomeScreen() {
             {isBlocking ? 'Stop Blocking' : 'Start Quick Block'}
           </Text>
         </TouchableOpacity>
+
+        <PomodoroTimer />
 
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
