@@ -1,14 +1,72 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING } from '../theme';
 import ScreenHeader from '../components/ScreenHeader';
 import { useAppStore } from '../store/StoreContext';
 
+interface InstalledApp {
+  packageName: string;
+  appName: string;
+  versionName: string;
+}
+
 export default function BlockingScreen() {
   const insets = useSafeAreaInsets();
-  const { blockedApps, removeBlockedApp } = useAppStore();
+  const { blockedApps, removeBlockedApp, addBlockedApp, profiles } = useAppStore();
+  const [showPicker, setShowPicker] = useState(false);
+  const [installedApps, setInstalledApps] = useState<InstalledApp[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (profiles.length > 0 && !selectedProfileId) {
+      const active = profiles.find(p => p.isActive);
+      setSelectedProfileId(active?.id ?? profiles[0].id);
+    }
+  }, [profiles, selectedProfileId]);
+
+  const loadInstalledApps = async () => {
+    if (Platform.OS !== 'android') {
+      setInstalledApps([
+        { packageName: 'com.example.app1', appName: 'Example App 1', versionName: '1.0.0' },
+        { packageName: 'com.example.app2', appName: 'Example App 2', versionName: '2.0.0' },
+      ]);
+      return;
+    }
+    try {
+      const { ExpoAndroidAppList } = await import('expo-android-app-list');
+      const apps = await ExpoAndroidAppList.getAll();
+      setInstalledApps(apps);
+    } catch (e) {
+      console.warn('Failed to load installed apps:', e);
+    }
+  };
+
+  const openPicker = async () => {
+    await loadInstalledApps();
+    setShowPicker(true);
+  };
+
+  const handleAddApp = (app: InstalledApp) => {
+    if (!selectedProfileId) return;
+    const alreadyBlocked = blockedApps.some(
+      b => b.packageName === app.packageName && b.profileId === selectedProfileId
+    );
+    if (!alreadyBlocked) {
+      addBlockedApp(selectedProfileId, app.packageName, app.appName);
+    }
+    setShowPicker(false);
+  };
+
+  const filteredApps = installedApps.filter(
+    app =>
+      app.appName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      app.packageName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const blockedPackages = new Set(blockedApps.map(b => b.packageName));
 
   return (
     <View style={styles.container}>
@@ -20,14 +78,20 @@ export default function BlockingScreen() {
           { paddingBottom: insets.bottom + SPACING.lg }
         ]}
         ListHeaderComponent={
-          <ScreenHeader title="Blocked Apps" subtitle={`${blockedApps.length} apps blocked`} />
+          <View>
+            <ScreenHeader title="Blocked Apps" subtitle={`${blockedApps.length} apps blocked`} />
+            <TouchableOpacity style={styles.addButton} onPress={openPicker}>
+              <Ionicons name="add-circle" size={20} color={COLORS.primary} />
+              <Text style={styles.addButtonText}>Add App to Block</Text>
+            </TouchableOpacity>
+          </View>
         }
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <Text style={styles.emptyIcon}>🔒</Text>
             <Text style={styles.emptyTitle}>No blocked apps yet</Text>
             <Text style={styles.emptyDescription}>
-              Select a profile to add blocked apps
+              Tap "Add App to Block" to select apps
             </Text>
           </View>
         }
@@ -43,6 +107,53 @@ export default function BlockingScreen() {
           </View>
         )}
       />
+
+      <Modal visible={showPicker} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select App to Block</Text>
+              <TouchableOpacity onPress={() => setShowPicker(false)}>
+                <Ionicons name="close" size={24} color={COLORS.white} />
+              </TouchableOpacity>
+            </View>
+
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search apps..."
+              placeholderTextColor={COLORS.gray40}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+
+            <FlatList
+              data={filteredApps}
+              keyExtractor={(item) => item.packageName}
+              style={styles.appList}
+              renderItem={({ item }) => {
+                const isBlocked = blockedPackages.has(item.packageName);
+                return (
+                  <TouchableOpacity
+                    style={[styles.pickerItem, isBlocked && styles.pickerItemBlocked]}
+                    onPress={() => !isBlocked && handleAddApp(item)}
+                    disabled={isBlocked}
+                  >
+                    <View style={styles.pickerItemInfo}>
+                      <Text style={styles.pickerItemName}>{item.appName}</Text>
+                      <Text style={styles.pickerItemPackage}>{item.packageName}</Text>
+                    </View>
+                    {isBlocked ? (
+                      <Ionicons name="checkmark-circle" size={20} color={COLORS.success} />
+                    ) : (
+                      <Ionicons name="add-circle-outline" size={20} color={COLORS.primary} />
+                    )}
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -54,6 +165,17 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: SPACING.lg,
+  },
+  addButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+    marginBottom: SPACING.lg,
+  },
+  addButtonText: {
+    fontSize: 16,
+    color: COLORS.primary,
+    fontWeight: '600',
   },
   emptyState: {
     alignItems: 'center',
@@ -92,6 +214,65 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
   packageName: {
+    fontSize: 12,
+    color: COLORS.gray40,
+    marginTop: 2,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: COLORS.gray95,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '80%',
+    paddingBottom: SPACING.xl,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: SPACING.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.gray80,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: COLORS.white,
+  },
+  searchInput: {
+    margin: SPACING.lg,
+    padding: SPACING.md,
+    backgroundColor: COLORS.gray90,
+    borderRadius: 8,
+    color: COLORS.white,
+    fontSize: 16,
+  },
+  appList: {
+    paddingHorizontal: SPACING.lg,
+  },
+  pickerItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: SPACING.md,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.gray80,
+  },
+  pickerItemBlocked: {
+    opacity: 0.5,
+  },
+  pickerItemInfo: {
+    flex: 1,
+  },
+  pickerItemName: {
+    fontSize: 16,
+    color: COLORS.white,
+  },
+  pickerItemPackage: {
     fontSize: 12,
     color: COLORS.gray40,
     marginTop: 2,

@@ -18,6 +18,7 @@ export const COLORS = {
   success: '#4CAF50',
   warning: '#FF9800',
   error: '#F44336',
+  danger: '#F44336',
   info: '#2196F3',
 
   // Neutral (Dark Theme)
