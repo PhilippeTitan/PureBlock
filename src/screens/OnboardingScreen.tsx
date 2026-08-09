@@ -1,20 +1,17 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Dimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, FONTS, BORDER_RADIUS } from '../theme';
+import { COLORS, SPACING, BORDER_RADIUS } from '../theme';
 import { useAppStore } from '../store/StoreContext';
 import { setOnboardingComplete } from '../store/localStore';
 import { getInstalledApps, InstalledApp } from '../services/appLister';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const PROBLEMS = [
   { id: 'porn', label: 'Porn addiction', icon: 'lock-closed' as const },
@@ -44,17 +41,7 @@ const PERMISSIONS = [
   },
 ];
 
-interface Step {
-  key: string;
-}
-
-const STEPS: Step[] = [
-  { key: 'welcome' },
-  { key: 'problems' },
-  { key: 'apps' },
-  { key: 'permissions' },
-  { key: 'done' },
-];
+const STEPS = ['welcome', 'problems', 'apps', 'permissions', 'done'] as const;
 
 export default function OnboardingScreen() {
   const insets = useSafeAreaInsets();
@@ -88,48 +75,35 @@ export default function OnboardingScreen() {
   };
 
   const handleNext = () => {
-    if (currentStep < STEPS.length - 1) {
-      setCurrentStep(currentStep + 1);
-    }
+    if (currentStep < STEPS.length - 1) setCurrentStep(currentStep + 1);
   };
 
   const handleBack = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
+    if (currentStep > 0) setCurrentStep(currentStep - 1);
   };
 
   const handleFinish = async () => {
     const profile = await addProfile('My First Profile');
     for (const pkg of selectedApps) {
       const app = allApps.find(a => a.packageName === pkg);
-      if (app) {
-        await addBlockedApp(profile.id, pkg, app.appName);
-      }
+      if (app) await addBlockedApp(profile.id, pkg, app.appName);
     }
     await addProfile('Default');
     await setOnboardingComplete();
   };
 
   const renderStep = () => {
-    switch (STEPS[currentStep].key) {
-      case 'welcome':
-        return renderWelcome();
-      case 'problems':
-        return renderProblems();
-      case 'apps':
-        return renderApps();
-      case 'permissions':
-        return renderPermissions();
-      case 'done':
-        return renderDone();
-      default:
-        return null;
+    switch (STEPS[currentStep]) {
+      case 'welcome': return renderWelcome();
+      case 'problems': return renderProblems();
+      case 'apps': return renderApps();
+      case 'permissions': return renderPermissions();
+      case 'done': return renderDone();
     }
   };
 
   const renderWelcome = () => (
-    <View style={styles.stepContainer}>
+    <View style={styles.stepCenter}>
       <View style={styles.iconCircle}>
         <Ionicons name="shield-checkmark" size={64} color={COLORS.primary} />
       </View>
@@ -146,7 +120,7 @@ export default function OnboardingScreen() {
   );
 
   const renderProblems = () => (
-    <View style={styles.stepContainer}>
+    <View style={styles.stepTop}>
       <Text style={styles.stepLabel}>Step 1 of 3</Text>
       <Text style={styles.title}>What do you struggle with?</Text>
       <Text style={styles.subtitle}>
@@ -174,6 +148,7 @@ export default function OnboardingScreen() {
           );
         })}
       </View>
+      <View style={styles.spacer} />
       <TouchableOpacity
         style={[styles.primaryButton, selectedProblems.length === 0 && styles.disabledButton]}
         onPress={handleNext}
@@ -186,7 +161,7 @@ export default function OnboardingScreen() {
   );
 
   const renderApps = () => (
-    <View style={styles.stepContainer}>
+    <View style={styles.stepTop}>
       <Text style={styles.stepLabel}>Step 2 of 3</Text>
       <Text style={styles.title}>Pick apps to block</Text>
       <Text style={styles.subtitle}>
@@ -198,7 +173,7 @@ export default function OnboardingScreen() {
           <Text style={styles.loadingText}>Loading apps...</Text>
         </View>
       ) : (
-        <View style={styles.appList}>
+        <ScrollView style={styles.appListScroll} showsVerticalScrollIndicator={false}>
           {allApps.length === 0 ? (
             <Text style={styles.emptyText}>No apps found</Text>
           ) : (
@@ -224,7 +199,7 @@ export default function OnboardingScreen() {
               );
             })
           )}
-        </View>
+        </ScrollView>
       )}
       <TouchableOpacity style={styles.primaryButton} onPress={handleNext}>
         <Text style={styles.primaryButtonText}>
@@ -236,7 +211,7 @@ export default function OnboardingScreen() {
   );
 
   const renderPermissions = () => (
-    <View style={styles.stepContainer}>
+    <View style={styles.stepTop}>
       <Text style={styles.stepLabel}>Step 3 of 3</Text>
       <Text style={styles.title}>Grant permissions</Text>
       <Text style={styles.subtitle}>
@@ -258,6 +233,7 @@ export default function OnboardingScreen() {
       <Text style={styles.permissionNote}>
         You can grant these later in Settings. Blocking won't work until permissions are granted.
       </Text>
+      <View style={styles.spacer} />
       <TouchableOpacity style={styles.primaryButton} onPress={handleNext}>
         <Text style={styles.primaryButtonText}>Continue</Text>
         <Ionicons name="arrow-forward" size={20} color={COLORS.white} />
@@ -266,7 +242,7 @@ export default function OnboardingScreen() {
   );
 
   const renderDone = () => (
-    <View style={styles.stepContainer}>
+    <View style={styles.stepCenter}>
       <View style={styles.iconCircle}>
         <Ionicons name="checkmark-done" size={64} color={COLORS.success} />
       </View>
@@ -299,20 +275,14 @@ export default function OnboardingScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {renderStep()}
-      </ScrollView>
-
-      {/* Progress dots */}
-      <View style={[styles.progressContainer, { paddingBottom: insets.bottom + SPACING.md }]}>
-        {currentStep > 0 && (
+      {/* Header with back button + progress dots */}
+      <View style={styles.header}>
+        {currentStep > 0 ? (
           <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={20} color={COLORS.gray40} />
-            <Text style={styles.backText}>Back</Text>
+            <Ionicons name="arrow-back" size={22} color={COLORS.gray40} />
           </TouchableOpacity>
+        ) : (
+          <View style={{ width: 40 }} />
         )}
         <View style={styles.dots}>
           {STEPS.map((_, i) => (
@@ -322,8 +292,20 @@ export default function OnboardingScreen() {
             />
           ))}
         </View>
-        <View style={{ width: 60 }} />
+        <View style={{ width: 40 }} />
       </View>
+
+      {/* Step content */}
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: insets.bottom + SPACING.md }
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        {renderStep()}
+      </ScrollView>
     </View>
   );
 }
@@ -333,15 +315,50 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: SPACING.xl,
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
   },
-  stepContainer: {
-    flex: 1,
+  backButton: {
+    width: 40,
+    height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: SPACING.xl,
+  },
+  dots: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: COLORS.gray80,
+  },
+  dotActive: {
+    backgroundColor: COLORS.primary,
+    width: 24,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: SPACING.xl,
+  },
+  stepCenter: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: 400,
+  },
+  stepTop: {
+    alignItems: 'center',
+  },
+  spacer: {
+    flex: 1,
+    minHeight: 20,
   },
   iconCircle: {
     width: 120,
@@ -361,19 +378,19 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.sm,
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: '700',
     color: COLORS.white,
     textAlign: 'center',
-    marginBottom: SPACING.md,
+    marginBottom: SPACING.sm,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 15,
     color: COLORS.gray40,
     textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: SPACING.xl,
-    paddingHorizontal: SPACING.md,
+    lineHeight: 21,
+    marginBottom: SPACING.lg,
+    paddingHorizontal: SPACING.sm,
   },
   primaryButton: {
     flexDirection: 'row',
@@ -385,7 +402,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.xl,
     gap: SPACING.sm,
     width: '100%',
-    marginTop: SPACING.md,
+    marginTop: SPACING.sm,
   },
   primaryButtonText: {
     fontSize: 16,
@@ -400,7 +417,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: SPACING.sm,
     justifyContent: 'center',
-    marginBottom: SPACING.xl,
   },
   chip: {
     flexDirection: 'row',
@@ -434,9 +450,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.gray40,
   },
-  appList: {
+  appListScroll: {
     width: '100%',
-    maxHeight: 280,
+    maxHeight: 300,
     marginBottom: SPACING.md,
   },
   appRow: {
@@ -501,7 +517,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: COLORS.gray60,
     textAlign: 'center',
-    marginBottom: SPACING.md,
+    marginTop: SPACING.sm,
     paddingHorizontal: SPACING.md,
   },
   summaryCard: {
@@ -521,36 +537,5 @@ const styles = StyleSheet.create({
   summaryText: {
     fontSize: 14,
     color: COLORS.gray40,
-  },
-  progressContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.xl,
-    paddingTop: SPACING.md,
-  },
-  backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    width: 60,
-  },
-  backText: {
-    fontSize: 14,
-    color: COLORS.gray40,
-  },
-  dots: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: COLORS.gray80,
-  },
-  dotActive: {
-    backgroundColor: COLORS.primary,
-    width: 24,
   },
 });

@@ -174,3 +174,63 @@
 - Preview button for testing blocking overlay
 
 **Status:** 5/22 features done, blocking overlay working, app listing with mock fallback
+
+---
+
+## Session 6: Express.js Backend + Settings Wiring
+**Date:** 2026-08-09
+
+**What happened:**
+- Built Express.js backend server for sync with Neon PostgreSQL
+- Created API client for frontend-to-backend communication
+- Wired SettingsScreen to use global store (was using local state)
+- Updated syncEngine to use API client instead of raw fetch
+- Fixed TypeScript errors (module resolution, missing state properties)
+- Updated TypeScript to 5.4 for `module: preserve` support
+
+**What we built:**
+- server.js — Express backend (port 3001) with routes for profiles, blocked-apps, blocked-websites, schedules
+- src/api.ts — Typed API client with dev/prod URL switching
+- Updated src/store/syncEngine.ts — Uses API client instead of raw fetch
+- Updated src/screens/SettingsScreen.tsx — Connected to useAppStore
+- Updated src/store/StoreContext.tsx — Added missing store actions
+- Updated src/store/useStore.ts — Fixed initial state (isBlocking/blockingSince)
+- Updated src/services/appLister.ts — Fixed InstalledApp type
+- Updated src/screens/BlockerScreen.tsx — Fixed navigation type
+- Updated package.json — Added express, pg, cors, dotenv + server script
+- Updated tsconfig.json — Compatible with Expo SDK 56
+
+**Decision:**
+- Express.js backend (like MaurMaket) for sync API
+- API client switches URL based on __DEV__ (Android emulator uses 10.0.2.2)
+- Settings screen now uses global store, not local state
+- TypeScript updated to 5.4 to support `module: preserve`
+
+**Status:** 6/22 features done, backend API ready, sync engine connected
+
+---
+
+## Session 7: Onboarding Flow + Safe Area Rule
+**Date:** 2026-08-09
+
+**What happened:**
+- Built 5-step onboarding wizard (welcome, problems, apps, permissions, done)
+- App.tsx now checks onboarding state on launch — shows onboarding first if incomplete
+- OnboardingScreen loads installed apps and lets user pick apps to block
+- Creates first profile + adds selected blocked apps on finish
+- Added ONBOARDING_COMPLETE key to localStore
+- Added safe area rule to AGENTS.md Design Principles
+
+**What we built:**
+- src/screens/OnboardingScreen.tsx — 5-step onboarding wizard with safe areas
+- Updated src/store/localStore.ts — Added isOnboardingComplete/setOnboardingComplete
+- Updated App.tsx — Conditional navigation based on onboarding state
+- Updated AGENTS.md — Added safe area rule to Design Principles
+
+**Decision:**
+- Onboarding only shows once (AsyncStorage flag)
+- Creates "My First Profile" with selected apps on finish
+- Permissions explained but not enforced — user can grant later in Settings
+- Every screen must use useSafeAreaInsets() — documented in AGENTS.md
+
+**Status:** 7/22 features done, onboarding complete, safe area rule documented

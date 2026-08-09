@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Profile, BlockedApp, BlockedWebsite, Schedule, Settings } from '../types';
+import { Profile, BlockedApp, BlockedWebsite, Schedule, Settings, SavedLocation } from '../types';
 import {
   loadAllLocalData,
   saveProfiles,
@@ -16,6 +16,9 @@ import {
   addSchedule as localAddSchedule,
   deleteSchedule as localDeleteSchedule,
   saveSettings as localSaveSettings,
+  saveLocations,
+  addLocation as localAddLocation,
+  deleteLocation as localDeleteLocation,
   setUserId as localSetUserId,
   getUserId,
 } from './localStore';
@@ -28,6 +31,7 @@ export interface AppState {
   blockedApps: BlockedApp[];
   blockedWebsites: BlockedWebsite[];
   schedules: Schedule[];
+  locations: SavedLocation[];
   settings: Settings;
   isOnline: boolean;
   lastSync: string | null;
@@ -43,6 +47,7 @@ export function useStore() {
     blockedApps: [],
     blockedWebsites: [],
     schedules: [],
+    locations: [],
     settings: { strictMode: false, notificationsEnabled: true, theme: 'dark' },
     isOnline: false,
     lastSync: null,

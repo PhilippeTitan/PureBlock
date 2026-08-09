@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Profile, BlockedApp, BlockedWebsite, Schedule, Settings } from '../types';
+import { Profile, BlockedApp, BlockedWebsite, Schedule, Settings, SavedLocation } from '../types';
 
 const KEYS = {
   PROFILES: '@pureblock/profiles',
@@ -10,6 +10,7 @@ const KEYS = {
   LAST_SYNC: '@pureblock/last_sync',
   USER_ID: '@pureblock/user_id',
   ONBOARDING_COMPLETE: '@pureblock/onboarding_complete',
+  LOCATIONS: '@pureblock/locations',
 } as const;
 
 async function get<T>(key: string): Promise<T | null> {
@@ -147,6 +148,26 @@ export async function setLastSyncTime(iso: string): Promise<void> {
   await set(KEYS.LAST_SYNC, iso);
 }
 
+// --- Locations ---
+export async function getLocations(): Promise<SavedLocation[]> {
+  return (await get<SavedLocation[]>(KEYS.LOCATIONS)) ?? [];
+}
+
+export async function saveLocations(locations: SavedLocation[]): Promise<void> {
+  await set(KEYS.LOCATIONS, locations);
+}
+
+export async function addLocation(location: SavedLocation): Promise<void> {
+  const locations = await getLocations();
+  locations.push(location);
+  await saveLocations(locations);
+}
+
+export async function deleteLocation(id: string): Promise<void> {
+  const locations = await getLocations();
+  await saveLocations(locations.filter(l => l.id !== id));
+}
+
 // --- Onboarding ---
 export async function isOnboardingComplete(): Promise<boolean> {
   return (await get<boolean>(KEYS.ONBOARDING_COMPLETE)) ?? false;
@@ -158,7 +179,7 @@ export async function setOnboardingComplete(): Promise<void> {
 
 // --- Bulk load (for app init) ---
 export async function loadAllLocalData() {
-  const [profiles, blockedApps, blockedWebsites, schedules, settings, userId, lastSync] =
+  const [profiles, blockedApps, blockedWebsites, schedules, settings, userId, lastSync, locations] =
     await Promise.all([
       getProfiles(),
       getBlockedApps(),
@@ -167,7 +188,8 @@ export async function loadAllLocalData() {
       getSettings(),
       getUserId(),
       getLastSyncTime(),
+      getLocations(),
     ]);
 
-  return { profiles, blockedApps, blockedWebsites, schedules, settings, userId, lastSync };
+  return { profiles, blockedApps, blockedWebsites, schedules, settings, userId, lastSync, locations };
 }

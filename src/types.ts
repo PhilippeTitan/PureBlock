@@ -71,3 +71,14 @@ export interface Settings {
   notificationsEnabled: boolean;
   theme: 'dark' | 'light';
 }
+
+export interface SavedLocation {
+  id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  radius: number; // meters
+  profileId: string;
+  isActive: boolean;
+  createdAt: string;
+}

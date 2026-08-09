@@ -1,47 +1,50 @@
 # PureBlock — Active Context
 
 ## Current State
-Offline-first local storage layer complete. 6 screens wired to real store. Neon PostgreSQL schema applied. GitHub repo created.
+Website blocking screen complete. 10/22 features done.
 
 ## Last Session
 - **Date:** 2026-08-09
-- **Focus:** Storage layer, Neon migration, GitHub setup
+- **Focus:** Website blocking, onboarding fix
 - **Status:** Complete
 
 ## What's Done
 - ✅ Analyzed AppBlock decompiled APK
 - ✅ Decided on tech stack (Expo + Kotlin native)
 - ✅ Created Expo project with TypeScript
-- ✅ 7 screens with safe areas + sticky headers
+- ✅ 9 screens with safe areas + sticky headers (Home, Blocking, Stats, Settings, Profiles, Schedule, Blocker, Onboarding, WebsiteBlocking)
 - ✅ ScreenHeader component
 - ✅ Navigation (tabs + stack + modal)
 - ✅ Dark theme (blue/teal/gold)
-- ✅ AGENTS.md with 22 features tracked
+- ✅ AGENTS.md with 22 features tracked + safe area rule
 - ✅ Neon PostgreSQL schema (9 tables, migration applied)
 - ✅ Offline-first local storage (AsyncStorage)
 - ✅ Sync engine (local ↔ Neon)
 - ✅ Store context (useAppStore hook)
-- ✅ Screens wired to real data (Profiles, Blocking, Schedule)
+- ✅ Screens wired to real data (Profiles, Blocking, Schedule, Settings)
 - ✅ GitHub repo: https://github.com/PhilippeTitan/PureBlock
 - ✅ Utility functions (ID generation, time helpers)
 - ✅ App listing from device (expo-android-app-list)
 - ✅ Blocking overlay screen with motivational quotes
 - ✅ App lister service with mock data for Expo Go
 - ✅ HomeScreen with stats and quick actions
+- ✅ Express.js backend API (server.js, port 3001)
+- ✅ API client (src/api.ts) with dev/prod URL switching
+- ✅ Onboarding flow (5 steps: welcome, problems, apps, permissions, done)
+- ✅ Website blocking screen (add/remove URLs, suggested sites)
+- ✅ App.tsx checks onboarding state on launch
 
 ## What's Next
 - ⏳ #4 Native Kotlin module skeleton (needs Android Studio)
 - ⏳ #6 App blocking via foreground service
-- ⏳ Build Express.js backend API for sync
-- ⏳ Wire up Settings screen to store
+- ⏳ #18 Usage statistics dashboard
+- ⏳ #20 Pomodoro timer
 
 ## Feature Progress
-- Completed: 5/22 (Phase 0: foundation, UI, navigation + #5 app listing + #7 blocking overlay)
-- Next: Native Kotlin module (Phase 0, #4) or backend API
+- Completed: 10/22 (Phase 0: foundation, UI, navigation + #5 app listing + #7 blocking overlay + #8 quick block + #12 onboarding + #11 website blocking)
 
 ## Blockers
 - Android Studio not installed (~600MB, slow internet)
-- Backend API not built yet (needed for sync)
 
 ## User Preferences
 - Wants same MD logic as MaurMaket
