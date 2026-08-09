@@ -79,20 +79,12 @@ export default function App() {
             <Stack.Screen
               name="Profiles"
               component={ProfilesScreen}
-              options={{
-                title: 'Blocking Profiles',
-                headerStyle: { backgroundColor: COLORS.gray95 },
-                headerTintColor: COLORS.white,
-              }}
+              options={{ headerShown: false }}
             />
             <Stack.Screen
               name="Schedule"
               component={ScheduleScreen}
-              options={{
-                title: 'Schedule',
-                headerStyle: { backgroundColor: COLORS.gray95 },
-                headerTintColor: COLORS.white,
-              }}
+              options={{ headerShown: false }}
             />
             <Stack.Screen
               name="Blocker"

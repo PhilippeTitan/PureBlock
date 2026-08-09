@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING } from '../theme';
+import ScreenHeader from '../components/ScreenHeader';
 import { useAppStore } from '../store/StoreContext';
 import { Profile } from '../types';
 
@@ -33,21 +34,19 @@ export default function ProfilesScreen() {
 
   return (
     <View style={styles.container}>
+      <ScreenHeader title="Profiles" subtitle="Manage blocking profiles" />
       <FlatList
         data={profiles}
         keyExtractor={(item) => item.id}
         contentContainerStyle={[
           styles.listContent,
-          { paddingTop: insets.top + SPACING.md, paddingBottom: insets.bottom + SPACING.lg }
+          { paddingBottom: insets.bottom + SPACING.lg }
         ]}
         ListHeaderComponent={
-          <View>
-            <Text style={styles.title}>Blocking Profiles</Text>
-            <TouchableOpacity style={styles.addButton} onPress={handleAdd}>
-              <Ionicons name="add-circle" size={20} color={COLORS.primary} />
-              <Text style={styles.addButtonText}>Add Profile</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity style={styles.addButton} onPress={handleAdd}>
+            <Ionicons name="add-circle" size={20} color={COLORS.primary} />
+            <Text style={styles.addButtonText}>Add Profile</Text>
+          </TouchableOpacity>
         }
         ListEmptyComponent={
           <View style={styles.emptyState}>
@@ -86,12 +85,6 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: SPACING.lg,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: COLORS.white,
-    marginBottom: SPACING.lg,
   },
   addButton: {
     flexDirection: 'row',

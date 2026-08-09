@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING } from '../theme';
+import ScreenHeader from '../components/ScreenHeader';
 import { useAppStore } from '../store/StoreContext';
 import { getDayName } from '../utils';
 
@@ -12,16 +13,14 @@ export default function ScheduleScreen() {
 
   return (
     <View style={styles.container}>
+      <ScreenHeader title="Schedule" subtitle="Time-based blocking rules" />
       <FlatList
         data={schedules}
         keyExtractor={(item) => item.id}
         contentContainerStyle={[
           styles.listContent,
-          { paddingTop: insets.top + SPACING.md, paddingBottom: insets.bottom + SPACING.lg }
+          { paddingBottom: insets.bottom + SPACING.lg }
         ]}
-        ListHeaderComponent={
-          <Text style={styles.title}>Schedule</Text>
-        }
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <Text style={styles.emptyIcon}>📅</Text>
@@ -56,12 +55,6 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: SPACING.lg,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: COLORS.white,
-    marginBottom: SPACING.lg,
   },
   emptyState: {
     alignItems: 'center',
