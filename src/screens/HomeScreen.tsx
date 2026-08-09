@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -6,12 +6,18 @@ import { useNavigation } from '@react-navigation/native';
 import { COLORS, SPACING } from '../theme';
 import ScreenHeader from '../components/ScreenHeader';
 import PomodoroTimer from '../components/PomodoroTimer';
+import MoodCheckin, { shouldShowMoodCheckin } from '../components/MoodCheckin';
 import { useAppStore } from '../store/StoreContext';
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
   const { blockedApps, profiles, blockedWebsites, isBlocking, blockingSince, toggleBlocking } = useAppStore();
+  const [showMoodCheckin, setShowMoodCheckin] = useState(false);
+
+  useEffect(() => {
+    shouldShowMoodCheckin().then(show => setShowMoodCheckin(show));
+  }, []);
 
   const activeProfile = profiles.find(p => p.isActive);
   const hasBlockedApps = blockedApps.length > 0;
@@ -126,6 +132,12 @@ export default function HomeScreen() {
           <Ionicons name="chevron-forward" size={20} color={COLORS.gray40} />
         </TouchableOpacity>
       </ScrollView>
+
+      <MoodCheckin
+        visible={showMoodCheckin}
+        onClose={() => setShowMoodCheckin(false)}
+        context={isBlocking ? 'after' : 'before'}
+      />
     </View>
   );
 }

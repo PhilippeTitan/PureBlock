@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Switch } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, SPACING } from '../theme';
 import ScreenHeader from '../components/ScreenHeader';
+import EmergencyUnlock from '../components/EmergencyUnlock';
 import { useAppStore } from '../store/StoreContext';
 
 export default function SettingsScreen() {
@@ -47,6 +48,8 @@ export default function SettingsScreen() {
             {settings.pinHash ? 'Set' : 'Not Set'}
           </Text>
         </View>
+
+        <EmergencyUnlock />
       </View>
 
       <View style={styles.section}>
