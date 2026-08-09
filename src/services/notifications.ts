@@ -1,5 +1,5 @@
-import * as Notifications from 'expo-notifications';
-import { Platform } from 'react-native';
+// expo-notifications requires a development build, not Expo Go (removed in SDK 53)
+// All imports are lazy to avoid crash on import in Expo Go
 
 const QUOTES = [
   "Every moment of resistance is a victory.",
@@ -34,13 +34,44 @@ const QUOTES = [
   "Your struggle today is building the strength you need for tomorrow.",
 ];
 
-// expo-notifications requires a development build, not Expo Go (removed in SDK 54)
 let notificationsAvailable: boolean | null = null;
+let handlerSet = false;
+
+async function getNotifications() {
+  try {
+    const mod = await import('expo-notifications');
+    return mod;
+  } catch {
+    return null;
+  }
+}
+
+async function ensureHandler() {
+  if (handlerSet) return;
+  const Notifications = await getNotifications();
+  if (!Notifications) return;
+  try {
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+        shouldShowBanner: true,
+        shouldShowList: true,
+      }),
+    });
+    handlerSet = true;
+  } catch {}
+}
 
 async function isNotificationsAvailable(): Promise<boolean> {
   if (notificationsAvailable !== null) return notificationsAvailable;
+  const Notifications = await getNotifications();
+  if (!Notifications) {
+    notificationsAvailable = false;
+    return false;
+  }
   try {
-    // Try to access the module - will throw in Expo Go
     await Notifications.getPermissionsAsync();
     notificationsAvailable = true;
   } catch {
@@ -49,22 +80,12 @@ async function isNotificationsAvailable(): Promise<boolean> {
   return notificationsAvailable;
 }
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
-
 export async function requestNotificationPermission(): Promise<boolean> {
   try {
-    if (!(await isNotificationsAvailable())) return false;
+    const Notifications = await getNotifications();
+    if (!Notifications) return false;
     const { status: existing } = await Notifications.getPermissionsAsync();
     if (existing === 'granted') return true;
-
     const { status } = await Notifications.requestPermissionsAsync();
     return status === 'granted';
   } catch {
@@ -74,17 +95,19 @@ export async function requestNotificationPermission(): Promise<boolean> {
 
 export async function scheduleDailyMotivation(): Promise<string | null> {
   try {
-    if (!(await isNotificationsAvailable())) return null;
+    const Notifications = await getNotifications();
+    if (!Notifications) return null;
     const hasPermission = await requestNotificationPermission();
     if (!hasPermission) return null;
 
+    await ensureHandler();
     await Notifications.cancelAllScheduledNotificationsAsync();
 
     const quote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
 
     const id = await Notifications.scheduleNotificationAsync({
       content: {
-        title: 'Stay Strong 💪',
+        title: 'Stay Strong',
         body: quote,
         data: { type: 'daily_motivation' },
       },
@@ -103,7 +126,8 @@ export async function scheduleDailyMotivation(): Promise<string | null> {
 
 export async function scheduleStreakReminder(days: number): Promise<string | null> {
   try {
-    if (!(await isNotificationsAvailable())) return null;
+    const Notifications = await getNotifications();
+    if (!Notifications) return null;
     const hasPermission = await requestNotificationPermission();
     if (!hasPermission) return null;
 
@@ -119,6 +143,7 @@ export async function scheduleStreakReminder(days: number): Promise<string | nul
     const message = messages[days];
     if (!message) return null;
 
+    await ensureHandler();
     const id = await Notifications.scheduleNotificationAsync({
       content: {
         title: `${days}-Day Milestone!`,
@@ -140,14 +165,16 @@ export async function scheduleStreakReminder(days: number): Promise<string | nul
 
 export async function cancelAllNotifications(): Promise<void> {
   try {
-    if (!(await isNotificationsAvailable())) return;
+    const Notifications = await getNotifications();
+    if (!Notifications) return;
     await Notifications.cancelAllScheduledNotificationsAsync();
   } catch {}
 }
 
-export async function getScheduledNotifications(): Promise<Notifications.NotificationRequest[]> {
+export async function getScheduledNotifications(): Promise<any[]> {
   try {
-    if (!(await isNotificationsAvailable())) return [];
+    const Notifications = await getNotifications();
+    if (!Notifications) return [];
     return await Notifications.getAllScheduledNotificationsAsync();
   } catch {
     return [];
