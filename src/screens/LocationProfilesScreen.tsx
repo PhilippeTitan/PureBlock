@@ -11,6 +11,7 @@ import {
   Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, BORDER_RADIUS } from '../theme';
 import { useAppStore } from '../store/StoreContext';
@@ -20,6 +21,7 @@ const RADIUS_PRESETS = [100, 200, 500, 1000, 2000];
 
 export default function LocationProfilesScreen() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
   const { locations, profiles, addLocation, deleteLocation, toggleLocation } = useAppStore();
   const [isDetecting, setIsDetecting] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -111,7 +113,7 @@ export default function LocationProfilesScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <ScreenHeader title="Location Profiles" />
+      <ScreenHeader title="Location Profiles" onBack={() => navigation.goBack()} />
 
       <ScrollView
         style={styles.scrollView}
