@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING } from '../theme';
 import ScreenHeader from '../components/ScreenHeader';
@@ -9,6 +10,7 @@ import { getInstalledApps, InstalledApp } from '../services/appLister';
 
 export default function BlockingScreen() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<any>();
   const { blockedApps, removeBlockedApp, addBlockedApp, profiles } = useAppStore();
   const [showPicker, setShowPicker] = useState(false);
   const [installedApps, setInstalledApps] = useState<InstalledApp[]>([]);
@@ -63,6 +65,14 @@ export default function BlockingScreen() {
         ListHeaderComponent={
           <View>
             <ScreenHeader title="Blocked Apps" subtitle={`${blockedApps.length} apps blocked`} />
+            <TouchableOpacity
+              style={styles.websiteButton}
+              onPress={() => navigation.navigate('Websites')}
+            >
+              <Ionicons name="globe" size={20} color={COLORS.secondary} />
+              <Text style={styles.websiteButtonText}>Manage Blocked Websites</Text>
+              <Ionicons name="chevron-forward" size={18} color={COLORS.gray40} />
+            </TouchableOpacity>
             <TouchableOpacity style={styles.addButton} onPress={openPicker}>
               <Ionicons name="add-circle" size={20} color={COLORS.primary} />
               <Text style={styles.addButtonText}>Add App to Block</Text>
@@ -159,6 +169,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.primary,
     fontWeight: '600',
+  },
+  websiteButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+    backgroundColor: COLORS.gray90,
+    borderRadius: 12,
+    padding: SPACING.md,
+    marginBottom: SPACING.lg,
+  },
+  websiteButtonText: {
+    flex: 1,
+    fontSize: 15,
+    color: COLORS.secondary,
+    fontWeight: '500',
   },
   emptyState: {
     alignItems: 'center',
