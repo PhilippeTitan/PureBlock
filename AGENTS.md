@@ -167,7 +167,7 @@ This project has a persistent knowledge base at `NOTES/`. Use it:
 | 9 | Multiple blocking profiles | ✅ | Work, Sleep, Study profiles with own blocked apps |
 | 10 | Time-based schedules | ✅ | Day-of-week + start/end time per schedule |
 | 11 | Website blocking | ⏳ | Block URLs via accessibility service (schema ready) |
-| 12 | Onboarding flow | ❌ | First-time setup wizard + permissions walkthrough |
+| 12 | Onboarding flow | ✅ | First-time setup wizard + permissions walkthrough |
 
 ### 🔵 Phase 3: Anti-Bypass — 4 features
 | # | Feature | Status | Description |
@@ -189,9 +189,9 @@ This project has a persistent knowledge base at `NOTES/`. Use it:
 
 ### Summary
 - **Total features:** 22
-- **Completed:** 8 ✅
+- **Completed:** 9 ✅
 - **In Progress:** 7 ⏳
-- **Not Built:** 7 ❌
+- **Not Built:** 6 ❌
 
 ## Key Observations
 1. Native Kotlin module is REQUIRED for proper blocking
