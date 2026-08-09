@@ -44,14 +44,22 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <ScreenHeader title="PureBlock" subtitle="Stay focused. Stay pure." />
+      <ScreenHeader
+        title="PureBlock"
+        subtitle="Stay focused. Stay pure."
+        rightAction={
+          <TouchableOpacity style={styles.bellButton}>
+            <Ionicons name="notifications-outline" size={18} color={COLORS.gray40} />
+          </TouchableOpacity>
+        }
+      />
       <ScrollView
         contentContainerStyle={[
           styles.contentContainer,
           { paddingBottom: insets.bottom + TAB_BAR_HEIGHT + SPACING.md }
         ]}
       >
-        {/* Status + primary action, merged into a single card */}
+        {/* Status card */}
         <View style={[styles.statusCard, isBlocking && styles.statusCardActive]}>
           <View style={styles.statusHeader}>
             <View style={styles.statusHeaderLeft}>
@@ -98,33 +106,26 @@ export default function HomeScreen() {
 
         <PomodoroTimer />
 
+        {/* Stats row */}
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
-            <Ionicons name="lock-closed" size={20} color={COLORS.primary} />
+            <Ionicons name="lock-closed" size={18} color={COLORS.primary} />
             <Text style={styles.statNumber}>{blockedApps.length}</Text>
             <Text style={styles.statLabel}>Apps</Text>
           </View>
           <View style={styles.statItem}>
-            <Ionicons name="globe" size={20} color={COLORS.secondary} />
+            <Ionicons name="globe" size={18} color={COLORS.secondary} />
             <Text style={styles.statNumber}>{blockedWebsites.length}</Text>
             <Text style={styles.statLabel}>Sites</Text>
           </View>
           <View style={styles.statItem}>
-            <Ionicons name="flame" size={20} color={COLORS.accent} />
+            <Ionicons name="flame" size={18} color={COLORS.accent} />
             <Text style={styles.statNumber}>{moodStreak}</Text>
             <Text style={styles.statLabel}>Day streak</Text>
           </View>
         </View>
 
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => navigation.navigate('Blocking')}
-          activeOpacity={0.85}
-        >
-          <Ionicons name="add-circle" size={22} color={COLORS.white} />
-          <Text style={styles.addButtonText}>Add app to block</Text>
-        </TouchableOpacity>
-
+        {/* Mood banner */}
         {showMoodBanner && (
           <TouchableOpacity style={styles.moodBanner} onPress={() => setShowMoodModal(true)}>
             <Text style={styles.moodBannerEmoji}>🙂</Text>
@@ -152,6 +153,14 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: SPACING.lg,
+  },
+  bellButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: COLORS.gray90,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   statusCard: {
     backgroundColor: COLORS.surface,
@@ -222,7 +231,6 @@ const styles = StyleSheet.create({
   },
   statsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     gap: SPACING.sm,
     marginBottom: SPACING.md,
   },
@@ -232,32 +240,16 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     borderRadius: BORDER_RADIUS.lg,
     paddingVertical: SPACING.md,
+    gap: SPACING.xs,
   },
   statNumber: {
     fontSize: 18,
     fontWeight: '500',
     color: COLORS.white,
-    marginTop: SPACING.xs,
   },
   statLabel: {
     fontSize: 10,
-    color: COLORS.gray40,
-    marginTop: 2,
-  },
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: SPACING.sm,
-    backgroundColor: COLORS.primary,
-    borderRadius: BORDER_RADIUS.lg,
-    paddingVertical: SPACING.lg,
-    marginBottom: SPACING.md,
-  },
-  addButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.white,
+    color: COLORS.gray60,
   },
   moodBanner: {
     flexDirection: 'row',
@@ -266,10 +258,10 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     borderRadius: BORDER_RADIUS.lg,
     padding: SPACING.md,
-    marginBottom: SPACING.md,
+    marginTop: SPACING.sm,
   },
   moodBannerEmoji: {
-    fontSize: 18,
+    fontSize: 20,
   },
   moodBannerText: {
     flex: 1,

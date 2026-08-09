@@ -8,9 +8,10 @@ interface ScreenHeaderProps {
   title: string;
   subtitle?: string;
   onBack?: () => void;
+  rightAction?: React.ReactNode;
 }
 
-export default function ScreenHeader({ title, subtitle, onBack }: ScreenHeaderProps) {
+export default function ScreenHeader({ title, subtitle, onBack, rightAction }: ScreenHeaderProps) {
   const insets = useSafeAreaInsets();
 
   return (
@@ -20,8 +21,13 @@ export default function ScreenHeader({ title, subtitle, onBack }: ScreenHeaderPr
           <Ionicons name="arrow-back" size={24} color={COLORS.gray40} />
         </TouchableOpacity>
       )}
-      <Text style={styles.title}>{title}</Text>
-      {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+      <View style={styles.titleRow}>
+        <View>
+          <Text style={styles.title}>{title}</Text>
+          {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+        </View>
+        {rightAction}
+      </View>
     </View>
   );
 }
@@ -34,6 +40,11 @@ const styles = StyleSheet.create({
   },
   backButton: {
     marginBottom: SPACING.sm,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   title: {
     fontSize: 28,
