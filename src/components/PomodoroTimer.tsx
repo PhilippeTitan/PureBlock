@@ -125,7 +125,7 @@ export default function PomodoroTimer({ onPhaseChange }: Props) {
     <View style={styles.container}>
       <View style={styles.header}>
         <Ionicons name="timer" size={18} color={phaseColor} />
-        <Text style={[styles.headerTitle, { color: phaseColor }]}>Pomodoro</Text>
+        <Text style={[styles.headerTitle, { color: phaseColor }]}>Focus time</Text>
         <View style={styles.sessionDots}>
           {Array.from({ length: SESSIONS_BEFORE_LONG_BREAK }).map((_, i) => (
             <View
