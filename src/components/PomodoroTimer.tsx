@@ -29,8 +29,6 @@ export default function PomodoroTimer({ onPhaseChange }: Props) {
     ? LONG_BREAK_DURATION
     : FOCUS_DURATION;
 
-  const progress = 1 - timeLeft / totalDuration;
-
   useEffect(() => {
     onPhaseChange?.(phase);
   }, [phase]);
@@ -89,6 +87,14 @@ export default function PomodoroTimer({ onPhaseChange }: Props) {
     setIsPaused(true);
   };
 
+  const handleToggle = () => {
+    if (isPaused) {
+      handleStart();
+    } else {
+      handlePause();
+    }
+  };
+
   const handleReset = () => {
     if (intervalRef.current) clearInterval(intervalRef.current);
     setPhase('idle');
@@ -105,26 +111,21 @@ export default function PomodoroTimer({ onPhaseChange }: Props) {
   const seconds = timeLeft % 60;
   const timeDisplay = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-  const phaseLabel = phase === 'idle'
-    ? 'Ready to focus?'
-    : phase === 'focus'
-    ? 'Focus Time'
-    : phase === 'break'
-    ? 'Short Break'
-    : 'Long Break';
-
   const phaseColor = phase === 'focus'
     ? COLORS.primary
     : phase === 'break'
     ? COLORS.success
     : phase === 'longBreak'
     ? COLORS.secondary
-    : COLORS.gray40;
+    : COLORS.primary;
+
+  const filledDots = sessionsCompleted % SESSIONS_BEFORE_LONG_BREAK;
 
   return (
     <View style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
-        <Ionicons name="timer" size={18} color={phaseColor} />
+        <Ionicons name="time" size={16} color={phaseColor} />
         <Text style={[styles.headerTitle, { color: phaseColor }]}>Focus time</Text>
         <View style={styles.sessionDots}>
           {Array.from({ length: SESSIONS_BEFORE_LONG_BREAK }).map((_, i) => (
@@ -132,51 +133,33 @@ export default function PomodoroTimer({ onPhaseChange }: Props) {
               key={i}
               style={[
                 styles.sessionDot,
-                i < sessionsCompleted % SESSIONS_BEFORE_LONG_BREAK && styles.sessionDotFilled,
+                i < filledDots && styles.sessionDotFilled,
               ]}
             />
           ))}
         </View>
       </View>
 
-      {/* Timer Display */}
-      <View style={styles.timerWrap}>
-        <View style={styles.timerBackground}>
-          <View style={[styles.timerProgress, {
-            width: `${progress * 100}%`,
-            backgroundColor: phaseColor + '30',
-          }]} />
+      {/* Timer + Button */}
+      <View style={styles.timerRow}>
+        <View>
+          <Text style={styles.timerText}>{timeDisplay}</Text>
+          <Text style={styles.sessionCount}>
+            {sessionsCompleted} session{sessionsCompleted !== 1 ? 's' : ''} completed
+          </Text>
         </View>
-        <Text style={styles.timerText}>{timeDisplay}</Text>
-        <Text style={[styles.phaseLabel, { color: phaseColor }]}>{phaseLabel}</Text>
-      </View>
-
-      {/* Controls */}
-      <View style={styles.controls}>
-        <TouchableOpacity style={styles.controlButton} onPress={handleReset}>
-          <Ionicons name="refresh" size={20} color={COLORS.gray40} />
-        </TouchableOpacity>
-
-        {isPaused ? (
-          <TouchableOpacity style={[styles.playButton, { backgroundColor: phaseColor }]} onPress={handleStart}>
-            <Ionicons name={phase === 'idle' ? 'play' : 'play'} size={28} color={COLORS.white} />
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity style={[styles.playButton, { backgroundColor: phaseColor }]} onPress={handlePause}>
-            <Ionicons name="pause" size={28} color={COLORS.white} />
-          </TouchableOpacity>
-        )}
-
-        <TouchableOpacity style={styles.controlButton} onPress={handleSkip}>
-          <Ionicons name="play-skip-forward" size={20} color={COLORS.gray40} />
+        <TouchableOpacity
+          style={[styles.playButton, { backgroundColor: phaseColor }]}
+          onPress={handleToggle}
+          activeOpacity={0.85}
+        >
+          <Ionicons
+            name={isPaused ? 'play' : 'pause'}
+            size={18}
+            color={COLORS.white}
+          />
         </TouchableOpacity>
       </View>
-
-      {sessionsCompleted > 0 && (
-        <Text style={styles.sessionCount}>
-          {sessionsCompleted} session{sessionsCompleted !== 1 ? 's' : ''} completed
-        </Text>
-      )}
     </View>
   );
 }
@@ -184,9 +167,9 @@ export default function PomodoroTimer({ onPhaseChange }: Props) {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: COLORS.surface,
-    borderRadius: BORDER_RADIUS.lg,
+    borderRadius: BORDER_RADIUS.xl,
     padding: SPACING.lg,
-    marginBottom: SPACING.xl,
+    marginBottom: SPACING.md,
   },
   header: {
     flexDirection: 'row',
@@ -195,76 +178,44 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.lg,
   },
   headerTitle: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontSize: 13,
+    fontWeight: '500',
     flex: 1,
   },
   sessionDots: {
     flexDirection: 'row',
-    gap: 6,
+    gap: 5,
   },
   sessionDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
     backgroundColor: COLORS.gray80,
   },
   sessionDotFilled: {
     backgroundColor: COLORS.primary,
   },
-  timerWrap: {
+  timerRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: SPACING.lg,
-    position: 'relative',
-  },
-  timerBackground: {
-    width: '100%',
-    height: 4,
-    backgroundColor: COLORS.gray80,
-    borderRadius: 2,
-    marginBottom: SPACING.md,
-    overflow: 'hidden',
-  },
-  timerProgress: {
-    height: '100%',
-    borderRadius: 2,
+    justifyContent: 'space-between',
   },
   timerText: {
-    fontSize: 48,
-    fontWeight: '200',
+    fontSize: 28,
+    fontWeight: '300',
     color: COLORS.white,
     fontVariant: ['tabular-nums'],
   },
-  phaseLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginTop: SPACING.xs,
-  },
-  controls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: SPACING.xl,
-  },
-  controlButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: COLORS.gray90,
-    justifyContent: 'center',
-    alignItems: 'center',
+  sessionCount: {
+    fontSize: 11,
+    color: COLORS.gray60,
+    marginTop: 2,
   },
   playButton: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  sessionCount: {
-    fontSize: 12,
-    color: COLORS.gray40,
-    textAlign: 'center',
-    marginTop: SPACING.md,
   },
 });
