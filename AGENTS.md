@@ -175,7 +175,7 @@ This project has a persistent knowledge base at `NOTES/`. Use it:
 | 13 | Strict mode (device admin) | ⏳ | Prevent uninstall, hard to disable (needs native) |
 | 14 | PIN protection | ⏳ | PIN to change settings/disable blocking (settings only) |
 | 15 | Emergency unlock codes | ✅ | Backdoor codes with limited uses |
-| 16 | Location-based profiles | ❌ | Auto-activate profile by GPS geofence |
+| 16 | Location-based profiles | ✅ | Auto-activate profile by GPS geofence |
 
 ### ⚪ Phase 4: Analytics & Extras — 6 features
 | # | Feature | Status | Description |
@@ -189,8 +189,8 @@ This project has a persistent knowledge base at `NOTES/`. Use it:
 
 ### Summary
 - **Total features:** 22
-- **Completed:** 14 ✅
-- **In Progress:** 6 ⏳
+- **Completed:** 15 ✅
+- **In Progress:** 5 ⏳
 - **Not Built:** 2 ❌
 
 ## Key Observations
@@ -255,3 +255,34 @@ This project has a persistent knowledge base at `NOTES/`. Use it:
 - Dark theme with blue/teal/gold palette
 
 **Status:** Foundation complete, ready for native module
+
+### Session 3 — 2026-08-09 (Features Sprint)
+**Date:** 2026-08-09
+
+**What happened:**
+- Fixed OnboardingScreen: back button at top, fixed chip layout, separate stepCenter/stepTop
+- Fixed localStore missing locations in loadAllLocalData
+- Built location-based profiles (#16): LocationProfilesScreen with GPS detection
+- Built motivational notifications: daily quotes at 8 AM via expo-notifications
+- Built blocking test feature: "Test Block" button on home screen
+- Built data export/import: backup/restore via JSON file sharing
+- Added LocationProfiles navigation link in Settings
+- Updated feature checklist: 15/22 complete
+
+**What we built:**
+- src/screens/LocationProfilesScreen.tsx — Location CRUD with GPS detection, radius presets, profile linking
+- src/services/notifications.ts — 30 motivational quotes, daily schedule, streak reminders
+- src/services/backup.ts — Export/import via JSON with expo-file-system, expo-sharing, expo-document-picker
+- Updated App.tsx with LocationProfiles stack screen
+- Updated SettingsScreen with Location Profiles link + Export/Import buttons
+- Updated HomeScreen with Location Profiles + Test Block quick actions
+- Updated StoreContext with location CRUD actions
+- Updated useStore with location actions
+
+**Decision:**
+- Location profiles use expo-location for GPS + Nominatim reverse geocoding
+- Notifications use expo-notifications with daily 8 AM trigger
+- Backup uses JSON format with version field for future compatibility
+- Test blocking accessible from Home screen quick actions
+
+**Status:** 15/22 features complete, remaining 5 need Android Studio
