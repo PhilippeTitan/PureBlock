@@ -174,7 +174,7 @@ This project has a persistent knowledge base at `NOTES/`. Use it:
 |---|---------|--------|-------------|
 | 13 | Strict mode (device admin) | ⏳ | Prevent uninstall, hard to disable (needs native) |
 | 14 | PIN protection | ⏳ | PIN to change settings/disable blocking (settings only) |
-| 15 | Emergency unlock codes | ❌ | Backdoor codes with limited uses |
+| 15 | Emergency unlock codes | ✅ | Backdoor codes with limited uses |
 | 16 | Location-based profiles | ❌ | Auto-activate profile by GPS geofence |
 
 ### ⚪ Phase 4: Analytics & Extras — 6 features
@@ -184,14 +184,14 @@ This project has a persistent knowledge base at `NOTES/`. Use it:
 | 18 | Usage statistics dashboard | ✅ | Daily/weekly/monthly reports |
 | 19 | Motivational messages | ✅ | Quotes on blocking screen + daily notifications |
 | 20 | Pomodoro timer | ✅ | Focus sessions with block during timer |
-| 21 | Mood check-in | ❌ | Ask mood before/after blocking sessions |
+| 21 | Mood check-in | ✅ | Ask mood before/after blocking sessions |
 | 22 | WiFi-based profiles | ❌ | Auto-activate by WiFi network |
 
 ### Summary
 - **Total features:** 22
-- **Completed:** 12 ✅
+- **Completed:** 14 ✅
 - **In Progress:** 6 ⏳
-- **Not Built:** 4 ❌
+- **Not Built:** 2 ❌
 
 ## Key Observations
 1. Native Kotlin module is REQUIRED for proper blocking
