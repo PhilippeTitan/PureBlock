@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -13,8 +14,10 @@ import SettingsScreen from './src/screens/SettingsScreen';
 import ProfilesScreen from './src/screens/ProfilesScreen';
 import ScheduleScreen from './src/screens/ScheduleScreen';
 import BlockerScreen from './src/screens/BlockerScreen';
+import OnboardingScreen from './src/screens/OnboardingScreen';
 import { StoreProvider } from './src/store/StoreContext';
 import { COLORS } from './src/theme';
+import { isOnboardingComplete } from './src/store/localStore';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -66,34 +69,58 @@ function TabNavigator() {
 }
 
 export default function App() {
+  const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    isOnboardingComplete().then(done => setOnboardingDone(done));
+  }, []);
+
+  if (onboardingDone === null) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+      </View>
+    );
+  }
+
   return (
     <StoreProvider>
       <SafeAreaProvider>
         <NavigationContainer>
           <Stack.Navigator>
-            <Stack.Screen
-              name="Main"
-              component={TabNavigator}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Profiles"
-              component={ProfilesScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Schedule"
-              component={ScheduleScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Blocker"
-              component={BlockerScreen}
-              options={{
-                headerShown: false,
-                presentation: 'modal',
-              }}
-            />
+            {!onboardingDone ? (
+              <Stack.Screen
+                name="Onboarding"
+                component={OnboardingScreen}
+                options={{ headerShown: false }}
+              />
+            ) : (
+              <>
+                <Stack.Screen
+                  name="Main"
+                  component={TabNavigator}
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="Profiles"
+                  component={ProfilesScreen}
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="Schedule"
+                  component={ScheduleScreen}
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="Blocker"
+                  component={BlockerScreen}
+                  options={{
+                    headerShown: false,
+                    presentation: 'modal',
+                  }}
+                />
+              </>
+            )}
           </Stack.Navigator>
           <StatusBar style="light" />
         </NavigationContainer>
@@ -101,3 +128,12 @@ export default function App() {
     </StoreProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  loading: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

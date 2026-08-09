@@ -66,6 +66,16 @@ Porn addiction blocking Android app. React Native/Expo mobile app with a native 
 3. Check the opencode DB for recent user messages
 4. You are now caught up — proceed with the user's request
 
+## Blueprint Check Protocol
+**After EVERY critical update (new feature, refactor, major change):**
+1. Read `the blueprint to my porn addiction blocking app.txt` (AppBlock decompiled APK)
+2. Search for key feature strings (blocking, schedule, profile, quick block, strict mode, pomodoro, mood, geofence, wifi, emergency, pin, onboarding, statistics)
+3. Compare PureBlock's progress against AppBlock's features
+4. Update this file's Feature Checklist with accurate statuses
+5. Report gaps to user
+
+**Why:** The blueprint is the source of truth for what AppBlock can do. We must stay aligned.
+
 ## Safety Rules
 - **NEVER kill node.exe processes**: OpenCode runs on Node.js.
 - **Always test on real device**: Blocking requires actual Android device/emulator with permissions.
@@ -121,6 +131,7 @@ This project has a persistent knowledge base at `NOTES/`. Use it:
 - **Minimal UI** — focus on function, not flash
 - **Clear status indicators** — user must always know what's blocked
 - **Easy unblock** — but not TOO easy (strict mode exists for a reason)
+- **Every screen MUST use safe areas** — use `useSafeAreaInsets()` on ALL screens. Top padding for headers, bottom padding for content below fold. Pattern: `paddingTop: insets.top`, `paddingBottom: insets.bottom + SPACING.lg`. ScreenHeader handles its own top safe area.
 
 ## Blocking Permissions Required
 | Permission | Why |
@@ -140,46 +151,47 @@ This project has a persistent knowledge base at `NOTES/`. Use it:
 | 1 | Expo project setup | ✅ | React Native/Expo with TypeScript |
 | 2 | Basic UI screens | ✅ | Home, Blocking, Stats, Settings with safe areas + headers |
 | 3 | Navigation | ✅ | Bottom tabs + stack navigator |
-| 4 | Native Kotlin module skeleton | ⏳ | Kotlin module for blocking engine |
+| 4 | Native Kotlin module skeleton | ⏳ | Kotlin module for blocking engine (needs Android Studio) |
 
 ### 🟡 Phase 1: Core Blocking — 4 features
 | # | Feature | Status | Description |
 |---|---------|--------|-------------|
-| 5 | App listing from device | ⏳ | Get installed apps, show name/icon/package |
-| 6 | App blocking via foreground service | ⏳ | Block apps by package name in background |
-| 7 | Blocking overlay screen | ⏳ | Show screen when blocked app is opened |
-| 8 | Quick block toggle | ⏳ | One-tap emergency block/unblock button |
+| 5 | App listing from device | ✅ | Get installed apps, show name/icon/package |
+| 6 | App blocking via foreground service | ⏳ | Block apps by package name in background (needs native) |
+| 7 | Blocking overlay screen | ✅ | Show screen when blocked app is opened |
+| 8 | Quick block toggle | ✅ | One-tap emergency block/unblock button |
 
 ### 🟢 Phase 2: Profiles & Schedules — 4 features
 | # | Feature | Status | Description |
 |---|---------|--------|-------------|
-| 9 | Multiple blocking profiles | ⏳ | Work, Sleep, Study profiles with own blocked apps |
-| 10 | Time-based schedules | ⏳ | Day-of-week + start/end time per schedule |
-| 11 | Website blocking | ⏳ | Block URLs via accessibility service |
-| 12 | Onboarding flow | ⏳ | First-time setup wizard + permissions walkthrough |
+| 9 | Multiple blocking profiles | ✅ | Work, Sleep, Study profiles with own blocked apps |
+| 10 | Time-based schedules | ✅ | Day-of-week + start/end time per schedule |
+| 11 | Website blocking | ⏳ | Block URLs via accessibility service (schema ready) |
+| 12 | Onboarding flow | ❌ | First-time setup wizard + permissions walkthrough |
 
 ### 🔵 Phase 3: Anti-Bypass — 4 features
 | # | Feature | Status | Description |
 |---|---------|--------|-------------|
-| 13 | Strict mode (device admin) | ⏳ | Prevent uninstall, hard to disable |
-| 14 | PIN protection | ⏳ | PIN to change settings/disable blocking |
-| 15 | Emergency unlock codes | ⏳ | Backdoor codes with limited uses |
-| 16 | Location-based profiles | ⏳ | Auto-activate profile by GPS geofence |
+| 13 | Strict mode (device admin) | ⏳ | Prevent uninstall, hard to disable (needs native) |
+| 14 | PIN protection | ⏳ | PIN to change settings/disable blocking (settings only) |
+| 15 | Emergency unlock codes | ❌ | Backdoor codes with limited uses |
+| 16 | Location-based profiles | ❌ | Auto-activate profile by GPS geofence |
 
 ### ⚪ Phase 4: Analytics & Extras — 6 features
 | # | Feature | Status | Description |
 |---|---------|--------|-------------|
-| 17 | Blocked attempts counter | ⏳ | Track per-app block counts |
-| 18 | Usage statistics dashboard | ⏳ | Daily/weekly/monthly reports |
-| 19 | Motivational messages | ⏳ | Quotes on blocking screen + daily notifications |
-| 20 | Pomodoro timer | ⏳ | Focus sessions with block during timer |
-| 21 | Mood check-in | ⏳ | Ask mood before/after blocking sessions |
-| 22 | WiFi-based profiles | ⏳ | Auto-activate by WiFi network |
+| 17 | Blocked attempts counter | ⏳ | Track per-app block counts (schema ready) |
+| 18 | Usage statistics dashboard | ❌ | Daily/weekly/monthly reports |
+| 19 | Motivational messages | ✅ | Quotes on blocking screen + daily notifications |
+| 20 | Pomodoro timer | ❌ | Focus sessions with block during timer |
+| 21 | Mood check-in | ❌ | Ask mood before/after blocking sessions |
+| 22 | WiFi-based profiles | ❌ | Auto-activate by WiFi network |
 
 ### Summary
 - **Total features:** 22
-- **Completed:** 3 (foundation/UI only)
-- **Next up:** #4 Native Kotlin module skeleton
+- **Completed:** 8 ✅
+- **In Progress:** 7 ⏳
+- **Not Built:** 7 ❌
 
 ## Key Observations
 1. Native Kotlin module is REQUIRED for proper blocking

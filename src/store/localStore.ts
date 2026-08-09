@@ -9,6 +9,7 @@ const KEYS = {
   SETTINGS: '@pureblock/settings',
   LAST_SYNC: '@pureblock/last_sync',
   USER_ID: '@pureblock/user_id',
+  ONBOARDING_COMPLETE: '@pureblock/onboarding_complete',
 } as const;
 
 async function get<T>(key: string): Promise<T | null> {
@@ -144,6 +145,15 @@ export async function getLastSyncTime(): Promise<string | null> {
 
 export async function setLastSyncTime(iso: string): Promise<void> {
   await set(KEYS.LAST_SYNC, iso);
+}
+
+// --- Onboarding ---
+export async function isOnboardingComplete(): Promise<boolean> {
+  return (await get<boolean>(KEYS.ONBOARDING_COMPLETE)) ?? false;
+}
+
+export async function setOnboardingComplete(): Promise<void> {
+  await set(KEYS.ONBOARDING_COMPLETE, true);
 }
 
 // --- Bulk load (for app init) ---
