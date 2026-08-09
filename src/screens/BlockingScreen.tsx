@@ -71,7 +71,7 @@ export default function BlockingScreen() {
         }
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Text style={styles.emptyIcon}>🔒</Text>
+            <Ionicons name="lock-closed" size={48} color={COLORS.gray60} />
             <Text style={styles.emptyTitle}>No blocked apps yet</Text>
             <Text style={styles.emptyDescription}>
               Tap "Add App to Block" to select apps
@@ -163,10 +163,7 @@ const styles = StyleSheet.create({
   emptyState: {
     alignItems: 'center',
     paddingTop: SPACING.xxl,
-  },
-  emptyIcon: {
-    fontSize: 48,
-    marginBottom: SPACING.md,
+    gap: SPACING.md,
   },
   emptyTitle: {
     fontSize: 18,

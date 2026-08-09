@@ -23,7 +23,7 @@ export default function ScheduleScreen() {
         ]}
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Text style={styles.emptyIcon}>📅</Text>
+            <Ionicons name="calendar" size={48} color={COLORS.gray60} />
             <Text style={styles.emptyTitle}>No schedules yet</Text>
             <Text style={styles.emptyDescription}>
               Set up time-based blocking rules for different parts of your day
@@ -59,10 +59,7 @@ const styles = StyleSheet.create({
   emptyState: {
     alignItems: 'center',
     paddingTop: SPACING.xxl,
-  },
-  emptyIcon: {
-    fontSize: 48,
-    marginBottom: SPACING.md,
+    gap: SPACING.md,
   },
   emptyTitle: {
     fontSize: 18,

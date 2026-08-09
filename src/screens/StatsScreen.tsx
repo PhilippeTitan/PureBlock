@@ -17,7 +17,7 @@ export default function StatsScreen() {
         ]}
       >
         <View style={styles.emptyState}>
-          <Text style={styles.emptyIcon}>📊</Text>
+          <Ionicons name="stats-chart" size={48} color={COLORS.gray60} />
           <Text style={styles.emptyTitle}>No stats yet</Text>
           <Text style={styles.emptyDescription}>
             Start blocking apps to see your statistics here
@@ -39,10 +39,7 @@ const styles = StyleSheet.create({
   emptyState: {
     alignItems: 'center',
     paddingTop: SPACING.xxl,
-  },
-  emptyIcon: {
-    fontSize: 48,
-    marginBottom: SPACING.md,
+    gap: SPACING.md,
   },
   emptyTitle: {
     fontSize: 18,
