@@ -24,19 +24,18 @@ Offline-first local storage layer complete. 6 screens wired to real store. Neon 
 - ✅ Screens wired to real data (Profiles, Blocking, Schedule)
 - ✅ GitHub repo: https://github.com/PhilippeTitan/PureBlock
 - ✅ Utility functions (ID generation, time helpers)
+- ✅ App listing from device (expo-android-app-list)
 
 ## What's Next
 - ⏳ #4 Native Kotlin module skeleton (needs Android Studio)
-- ⏳ #5 App listing from device
 - ⏳ #6 App blocking via foreground service
 - ⏳ #7 Blocking overlay screen
 - ⏳ Build Express.js backend API for sync
 - ⏳ Wire up Settings screen to store
 
 ## Feature Progress
-- Completed: 3/22 (Phase 0: foundation, UI, navigation)
-- In Progress: Offline storage + sync layer
-- Next: Native Kotlin module (Phase 0, #4)
+- Completed: 4/22 (Phase 0: foundation, UI, navigation + #5 app listing)
+- Next: Native Kotlin module (Phase 0, #4) or blocking overlay (#7)
 
 ## Blockers
 - Android Studio not installed (~600MB, slow internet)

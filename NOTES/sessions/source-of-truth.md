@@ -101,3 +101,45 @@
 - Backend API URL left empty (to be built later)
 
 **Status:** Offline storage layer complete, 3/22 features done, screens wired to real data
+
+---
+
+## Session 4: App Listing Feature
+**Date:** 2026-08-09
+
+**What happened:**
+- User requested GitHub repo creation for PureBlock
+- Created private repo at https://github.com/PhilippeTitan/PureBlock
+- Initialized git, committed initial codebase, pushed to main
+- Completed Neon PostgreSQL migration (9 tables applied to main branch)
+- Built offline-first local storage layer with AsyncStorage
+- Created sync engine for local ↔ Neon sync
+- Created StoreContext with useAppStore hook
+- Wired ProfilesScreen, BlockingScreen, ScheduleScreen to real store
+- Installed expo-android-app-list for listing installed apps
+- Built app picker modal in BlockingScreen
+
+**What we built:**
+- GitHub repo: https://github.com/PhilippeTitan/PureBlock
+- src/store/localStore.ts — AsyncStorage wrapper (CRUD for all entities)
+- src/store/syncEngine.ts — Push/pull sync with Neon backend
+- src/store/useStore.ts — Reactive store hook with all actions
+- src/store/StoreContext.tsx — React context provider
+- src/utils.ts — ID generation, time helpers, schedule utils
+- Updated App.tsx with StoreProvider wrapper
+- Updated ProfilesScreen with real data + add/delete
+- Updated BlockingScreen with real data + remove + app picker modal
+- Updated ScheduleScreen with real data + delete
+- Updated types.ts (BlockedApp, BlockedWebsite, Profile, Schedule, Settings)
+- Added danger color to theme.ts
+
+**Decision:**
+- Use AsyncStorage for offline-first (local reads, background sync)
+- Sync engine pushes to Neon when online, queues when offline
+- StoreContext provides global state to all screens
+- Each screen handles its own CRUD operations
+- Backend API URL left empty (to be built later)
+- Use expo-android-app-list for listing installed apps (no native module needed)
+- App picker modal for selecting apps to block
+
+**Status:** Offline storage layer complete, 4/22 features done, app listing working
