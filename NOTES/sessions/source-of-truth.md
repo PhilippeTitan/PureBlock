@@ -143,3 +143,34 @@
 - App picker modal for selecting apps to block
 
 **Status:** Offline storage layer complete, 4/22 features done, app listing working
+
+---
+
+## Session 5: Blocking Overlay + App Lister Service
+**Date:** 2026-08-09
+
+**What happened:**
+- Fixed expo-android-app-list error (native module not available in Expo Go)
+- Created appLister service with mock data for development
+- Created BlockingOverlay component with motivational quotes
+- Created BlockerScreen that shows when blocked app is opened
+- Added BlockerScreen to navigation as modal
+- Updated HomeScreen with stats, quick actions, and blocker preview
+- Added danger color to theme
+
+**What we built:**
+- src/services/appLister.ts — App listing with mock fallback for Expo Go
+- src/components/BlockingOverlay.tsx — Blocking UI with quotes and actions
+- src/screens/BlockerScreen.tsx — Full blocking screen with back handler
+- Updated BlockingScreen to use appLister service
+- Updated HomeScreen with stats row, quick actions, blocker preview
+- Updated App.tsx with BlockerScreen in navigation
+
+**Decision:**
+- Use appLister service abstraction (mock in dev, native on device)
+- BlockingOverlay shows motivational quotes
+- BlockerScreen handles back button and navigation
+- HomeScreen shows quick stats and actions
+- Preview button for testing blocking overlay
+
+**Status:** 5/22 features done, blocking overlay working, app listing with mock fallback

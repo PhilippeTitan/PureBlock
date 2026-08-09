@@ -12,9 +12,9 @@ Offline-first local storage layer complete. 6 screens wired to real store. Neon 
 - ✅ Analyzed AppBlock decompiled APK
 - ✅ Decided on tech stack (Expo + Kotlin native)
 - ✅ Created Expo project with TypeScript
-- ✅ 6 screens with safe areas + sticky headers
+- ✅ 7 screens with safe areas + sticky headers
 - ✅ ScreenHeader component
-- ✅ Navigation (tabs + stack)
+- ✅ Navigation (tabs + stack + modal)
 - ✅ Dark theme (blue/teal/gold)
 - ✅ AGENTS.md with 22 features tracked
 - ✅ Neon PostgreSQL schema (9 tables, migration applied)
@@ -25,17 +25,19 @@ Offline-first local storage layer complete. 6 screens wired to real store. Neon 
 - ✅ GitHub repo: https://github.com/PhilippeTitan/PureBlock
 - ✅ Utility functions (ID generation, time helpers)
 - ✅ App listing from device (expo-android-app-list)
+- ✅ Blocking overlay screen with motivational quotes
+- ✅ App lister service with mock data for Expo Go
+- ✅ HomeScreen with stats and quick actions
 
 ## What's Next
 - ⏳ #4 Native Kotlin module skeleton (needs Android Studio)
 - ⏳ #6 App blocking via foreground service
-- ⏳ #7 Blocking overlay screen
 - ⏳ Build Express.js backend API for sync
 - ⏳ Wire up Settings screen to store
 
 ## Feature Progress
-- Completed: 4/22 (Phase 0: foundation, UI, navigation + #5 app listing)
-- Next: Native Kotlin module (Phase 0, #4) or blocking overlay (#7)
+- Completed: 5/22 (Phase 0: foundation, UI, navigation + #5 app listing + #7 blocking overlay)
+- Next: Native Kotlin module (Phase 0, #4) or backend API
 
 ## Blockers
 - Android Studio not installed (~600MB, slow internet)
