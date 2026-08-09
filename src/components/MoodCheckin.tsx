@@ -175,6 +175,25 @@ export async function shouldShowMoodCheckin(): Promise<boolean> {
   return hoursSince >= 12;
 }
 
+export async function getMoodStreak(): Promise<number> {
+  const raw = await AsyncStorage.getItem(MOOD_KEY);
+  if (!raw) return 0;
+  const history: MoodEntry[] = JSON.parse(raw);
+  if (history.length === 0) return 0;
+
+  let streak = 0;
+  const now = new Date();
+  for (let i = 0; i < 365; i++) {
+    const day = new Date(now);
+    day.setDate(day.getDate() - i);
+    const dayStr = day.toDateString();
+    const hasEntry = history.some(e => new Date(e.timestamp).toDateString() === dayStr);
+    if (hasEntry) streak++;
+    else break;
+  }
+  return streak;
+}
+
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,

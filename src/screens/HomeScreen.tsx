@@ -3,24 +3,26 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS, SPACING } from '../theme';
+import { COLORS, SPACING, BORDER_RADIUS } from '../theme';
 import ScreenHeader from '../components/ScreenHeader';
 import PomodoroTimer from '../components/PomodoroTimer';
-import MoodCheckin, { shouldShowMoodCheckin } from '../components/MoodCheckin';
+import MoodCheckin, { shouldShowMoodCheckin, getMoodStreak } from '../components/MoodCheckin';
 import { useAppStore } from '../store/StoreContext';
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
   const { blockedApps, profiles, blockedWebsites, isBlocking, blockingSince, toggleBlocking } = useAppStore();
-  const [showMoodCheckin, setShowMoodCheckin] = useState(false);
+  const [showMoodBanner, setShowMoodBanner] = useState(false);
+  const [showMoodModal, setShowMoodModal] = useState(false);
+  const [moodStreak, setMoodStreak] = useState(0);
 
   useEffect(() => {
-    shouldShowMoodCheckin().then(show => setShowMoodCheckin(show));
+    shouldShowMoodCheckin().then(setShowMoodBanner);
+    getMoodStreak().then(setMoodStreak);
   }, []);
 
   const activeProfile = profiles.find(p => p.isActive);
-  const hasBlockedApps = blockedApps.length > 0;
 
   const getBlockingDuration = () => {
     if (!blockingSince) return '';
@@ -34,6 +36,12 @@ export default function HomeScreen() {
     return `${mins}m`;
   };
 
+  const handleMoodSubmitted = () => {
+    setShowMoodModal(false);
+    setShowMoodBanner(false);
+    getMoodStreak().then(setMoodStreak);
+  };
+
   return (
     <View style={styles.container}>
       <ScreenHeader title="PureBlock" subtitle="Stay focused. Stay pure." />
@@ -43,112 +51,120 @@ export default function HomeScreen() {
           { paddingBottom: insets.bottom + SPACING.lg }
         ]}
       >
-        <TouchableOpacity
-          style={[styles.statusCard, isBlocking && styles.statusCardActive]}
-          onPress={toggleBlocking}
-          activeOpacity={0.8}
-        >
+        {/* Status + primary action, merged into a single card */}
+        <View style={[styles.statusCard, isBlocking && styles.statusCardActive]}>
           <View style={styles.statusHeader}>
-            <Text style={styles.statusLabel}>Blocking Status</Text>
-            <View style={[styles.statusDot, isBlocking && styles.statusDotActive]} />
+            <View style={styles.statusHeaderLeft}>
+              <View style={[styles.statusDot, isBlocking && styles.statusDotActive]} />
+              <Text style={styles.statusLabel}>
+                {isBlocking ? 'Blocking active' : 'Blocking inactive'}
+              </Text>
+            </View>
+            {isBlocking && activeProfile && (
+              <Text style={styles.statusProfile}>{activeProfile.name}</Text>
+            )}
           </View>
-          <Text style={[styles.statusValue, isBlocking && styles.statusActive]}>
-            {isBlocking ? 'Active' : 'Inactive'}
-          </Text>
+
           {isBlocking ? (
-            <Text style={styles.statusDetail}>
-              Blocking for {getBlockingDuration()}
-              {activeProfile ? ` • ${activeProfile.name}` : ''}
-            </Text>
+            <>
+              <Text style={styles.statusValue}>{getBlockingDuration()}</Text>
+              <Text style={styles.statusDetail}>
+                {blockedApps.length} apps and {blockedWebsites.length} sites blocked
+              </Text>
+            </>
           ) : (
             <Text style={styles.statusDetail}>
-              {hasBlockedApps
+              {blockedApps.length > 0
                 ? `${blockedApps.length} apps ready to block`
                 : 'No apps blocked yet'}
             </Text>
           )}
-        </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.quickBlockButton, isBlocking && styles.quickBlockButtonActive]}
-          onPress={toggleBlocking}
-        >
-          <Ionicons
-            name={isBlocking ? 'stop-circle' : 'play-circle'}
-            size={32}
-            color={COLORS.white}
-          />
-          <Text style={styles.quickBlockText}>
-            {isBlocking ? 'Stop Blocking' : 'Start Quick Block'}
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionButton, isBlocking && styles.actionButtonActive]}
+            onPress={toggleBlocking}
+            activeOpacity={0.85}
+          >
+            <Ionicons
+              name={isBlocking ? 'stop-circle' : 'play-circle'}
+              size={20}
+              color={COLORS.white}
+            />
+            <Text style={styles.actionButtonText}>
+              {isBlocking ? 'Stop blocking' : 'Start blocking'}
+            </Text>
+          </TouchableOpacity>
+        </View>
 
         <PomodoroTimer />
 
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
-            <Ionicons name="lock-closed" size={24} color={COLORS.primary} />
+            <Ionicons name="lock-closed" size={20} color={COLORS.primary} />
             <Text style={styles.statNumber}>{blockedApps.length}</Text>
-            <Text style={styles.statLabel}>Blocked Apps</Text>
+            <Text style={styles.statLabel}>Apps</Text>
           </View>
           <View style={styles.statItem}>
-            <Ionicons name="globe" size={24} color={COLORS.secondary} />
+            <Ionicons name="globe" size={20} color={COLORS.secondary} />
             <Text style={styles.statNumber}>{blockedWebsites.length}</Text>
-            <Text style={styles.statLabel}>Blocked Sites</Text>
+            <Text style={styles.statLabel}>Sites</Text>
           </View>
           <View style={styles.statItem}>
-            <Ionicons name="people" size={24} color={COLORS.accent} />
-            <Text style={styles.statNumber}>{profiles.length}</Text>
-            <Text style={styles.statLabel}>Profiles</Text>
+            <Ionicons name="flame" size={20} color={COLORS.accent} />
+            <Text style={styles.statNumber}>{moodStreak}</Text>
+            <Text style={styles.statLabel}>Day streak</Text>
           </View>
         </View>
 
-        <View style={styles.quickActions}>
+        <Text style={styles.sectionTitle}>Quick actions</Text>
+        <View style={styles.quickGrid}>
           <TouchableOpacity
             style={styles.quickButton}
             onPress={() => navigation.navigate('Blocking')}
           >
-            <Ionicons name="add-circle" size={20} color={COLORS.white} />
-            <Text style={styles.quickButtonText}>Add Blocked App</Text>
+            <Ionicons name="add-circle-outline" size={18} color={COLORS.primary} />
+            <Text style={styles.quickButtonText}>Add app</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.quickButton, styles.quickButtonSecondary]}
+            style={styles.quickButton}
             onPress={() => navigation.navigate('Profiles')}
           >
-            <Ionicons name="people-outline" size={20} color={COLORS.gray20} />
-            <Text style={[styles.quickButtonText, styles.quickButtonTextSecondary]}>
-              Profiles
-            </Text>
+            <Ionicons name="people-outline" size={18} color={COLORS.secondary} />
+            <Text style={styles.quickButtonText}>Profiles</Text>
           </TouchableOpacity>
-        </View>
 
-        <View style={styles.quickActions}>
           <TouchableOpacity
-            style={[styles.quickButton, styles.quickButtonSecondary]}
+            style={styles.quickButton}
             onPress={() => navigation.navigate('LocationProfiles')}
           >
-            <Ionicons name="location-outline" size={20} color={COLORS.gray20} />
-            <Text style={[styles.quickButtonText, styles.quickButtonTextSecondary]}>
-              Location Profiles
-            </Text>
+            <Ionicons name="location-outline" size={18} color={COLORS.accent} />
+            <Text style={styles.quickButtonText}>Locations</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.quickButton, styles.quickButtonSecondary]}
-            onPress={() => navigation.navigate('Blocker', { appName: 'Instagram', packageName: 'com.instagram.android' })}
+            style={styles.quickButton}
+            onPress={() => navigation.navigate('Stats')}
           >
-            <Ionicons name="flask-outline" size={20} color={COLORS.gray20} />
-            <Text style={[styles.quickButtonText, styles.quickButtonTextSecondary]}>
-              Test Block
-            </Text>
+            <Ionicons name="bar-chart-outline" size={18} color={COLORS.gray40} />
+            <Text style={styles.quickButtonText}>Stats</Text>
           </TouchableOpacity>
         </View>
+
+        {showMoodBanner && (
+          <TouchableOpacity style={styles.moodBanner} onPress={() => setShowMoodModal(true)}>
+            <Text style={styles.moodBannerEmoji}>🙂</Text>
+            <Text style={styles.moodBannerText}>
+              {isBlocking ? 'How was that session?' : 'How are you feeling today?'}
+            </Text>
+            <Ionicons name="chevron-forward" size={16} color={COLORS.gray40} />
+          </TouchableOpacity>
+        )}
       </ScrollView>
 
       <MoodCheckin
-        visible={showMoodCheckin}
-        onClose={() => setShowMoodCheckin(false)}
+        visible={showMoodModal}
+        onClose={handleMoodSubmitted}
         context={isBlocking ? 'after' : 'before'}
       />
     </View>
@@ -165,10 +181,10 @@ const styles = StyleSheet.create({
   },
   statusCard: {
     backgroundColor: COLORS.surface,
-    borderRadius: 12,
+    borderRadius: BORDER_RADIUS.xl,
     padding: SPACING.lg,
     marginBottom: SPACING.md,
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: 'transparent',
   },
   statusCardActive: {
@@ -178,112 +194,127 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: SPACING.xs,
+    marginBottom: SPACING.sm,
   },
-  statusLabel: {
-    fontSize: 14,
-    color: COLORS.gray40,
+  statusHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
   },
   statusDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: COLORS.gray60,
   },
   statusDotActive: {
     backgroundColor: COLORS.success,
   },
-  statusValue: {
-    fontSize: 24,
-    fontWeight: 'bold',
+  statusLabel: {
+    fontSize: 12,
     color: COLORS.gray40,
-    marginBottom: SPACING.xs,
   },
-  statusActive: {
-    color: COLORS.success,
+  statusProfile: {
+    fontSize: 11,
+    color: COLORS.gray60,
+  },
+  statusValue: {
+    fontSize: 26,
+    fontWeight: '500',
+    color: COLORS.white,
+    marginBottom: 2,
   },
   statusDetail: {
-    fontSize: 14,
+    fontSize: 13,
     color: COLORS.gray40,
+    marginBottom: SPACING.md,
   },
-  quickBlockButton: {
+  actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: SPACING.md,
-    backgroundColor: COLORS.primary,
-    borderRadius: 16,
-    paddingVertical: SPACING.lg,
-    marginBottom: SPACING.xl,
+    gap: SPACING.sm,
+    backgroundColor: COLORS.error,
+    borderRadius: BORDER_RADIUS.lg,
+    paddingVertical: SPACING.md,
   },
-  quickBlockButtonActive: {
+  actionButtonActive: {
     backgroundColor: COLORS.error,
   },
-  quickBlockText: {
-    fontSize: 18,
-    fontWeight: '700',
+  actionButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
     color: COLORS.white,
   },
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: SPACING.xl,
+    gap: SPACING.sm,
+    marginBottom: SPACING.md,
   },
   statItem: {
-    alignItems: 'center',
     flex: 1,
+    alignItems: 'center',
+    backgroundColor: COLORS.surface,
+    borderRadius: BORDER_RADIUS.lg,
+    paddingVertical: SPACING.md,
   },
   statNumber: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontWeight: '500',
     color: COLORS.white,
-    marginTop: SPACING.sm,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: COLORS.gray40,
     marginTop: SPACING.xs,
   },
-  quickActions: {
+  statLabel: {
+    fontSize: 10,
+    color: COLORS.gray40,
+    marginTop: 2,
+  },
+  sectionTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.gray40,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: SPACING.sm,
+    marginTop: SPACING.xs,
+  },
+  quickGrid: {
     flexDirection: 'row',
-    gap: SPACING.md,
-    marginBottom: SPACING.xl,
+    flexWrap: 'wrap',
+    gap: SPACING.sm,
+    marginBottom: SPACING.md,
   },
   quickButton: {
-    flex: 1,
+    flexBasis: '47%',
+    flexGrow: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     gap: SPACING.sm,
-    backgroundColor: COLORS.primary,
-    borderRadius: 12,
-    padding: SPACING.md,
-  },
-  quickButtonSecondary: {
     backgroundColor: COLORS.surface,
-    borderWidth: 1,
-    borderColor: COLORS.gray80,
+    borderRadius: BORDER_RADIUS.lg,
+    padding: SPACING.md,
   },
   quickButtonText: {
-    color: COLORS.white,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  quickButtonTextSecondary: {
+    fontSize: 13,
     color: COLORS.gray20,
   },
-  blockerPreview: {
+  moodBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: SPACING.sm,
     backgroundColor: COLORS.surface,
-    borderRadius: 12,
+    borderRadius: BORDER_RADIUS.lg,
     padding: SPACING.md,
+    marginBottom: SPACING.md,
   },
-  blockerPreviewText: {
+  moodBannerEmoji: {
+    fontSize: 18,
+  },
+  moodBannerText: {
     flex: 1,
-    fontSize: 14,
-    color: COLORS.gray40,
-    marginLeft: SPACING.sm,
+    fontSize: 13,
+    fontWeight: '500',
+    color: COLORS.gray20,
   },
 });
