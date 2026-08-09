@@ -34,6 +34,21 @@ const QUOTES = [
   "Your struggle today is building the strength you need for tomorrow.",
 ];
 
+// expo-notifications requires a development build, not Expo Go (removed in SDK 54)
+let notificationsAvailable: boolean | null = null;
+
+async function isNotificationsAvailable(): Promise<boolean> {
+  if (notificationsAvailable !== null) return notificationsAvailable;
+  try {
+    // Try to access the module - will throw in Expo Go
+    await Notifications.getPermissionsAsync();
+    notificationsAvailable = true;
+  } catch {
+    notificationsAvailable = false;
+  }
+  return notificationsAvailable;
+}
+
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -45,76 +60,96 @@ Notifications.setNotificationHandler({
 });
 
 export async function requestNotificationPermission(): Promise<boolean> {
-  const { status: existing } = await Notifications.getPermissionsAsync();
-  if (existing === 'granted') return true;
+  try {
+    if (!(await isNotificationsAvailable())) return false;
+    const { status: existing } = await Notifications.getPermissionsAsync();
+    if (existing === 'granted') return true;
 
-  const { status } = await Notifications.requestPermissionsAsync();
-  return status === 'granted';
+    const { status } = await Notifications.requestPermissionsAsync();
+    return status === 'granted';
+  } catch {
+    return false;
+  }
 }
 
 export async function scheduleDailyMotivation(): Promise<string | null> {
-  const hasPermission = await requestNotificationPermission();
-  if (!hasPermission) return null;
+  try {
+    if (!(await isNotificationsAvailable())) return null;
+    const hasPermission = await requestNotificationPermission();
+    if (!hasPermission) return null;
 
-  // Cancel existing scheduled notifications
-  await Notifications.cancelAllScheduledNotificationsAsync();
+    await Notifications.cancelAllScheduledNotificationsAsync();
 
-  // Pick a random quote
-  const quote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+    const quote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
 
-  // Schedule daily at 8:00 AM
-  const id = await Notifications.scheduleNotificationAsync({
-    content: {
-      title: 'Stay Strong 💪',
-      body: quote,
-      data: { type: 'daily_motivation' },
-    },
-    trigger: {
-      type: Notifications.SchedulableTriggerInputTypes.DAILY,
-      hour: 8,
-      minute: 0,
-    },
-  });
+    const id = await Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'Stay Strong 💪',
+        body: quote,
+        data: { type: 'daily_motivation' },
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DAILY,
+        hour: 8,
+        minute: 0,
+      },
+    });
 
-  return id;
+    return id;
+  } catch {
+    return null;
+  }
 }
 
 export async function scheduleStreakReminder(days: number): Promise<string | null> {
-  const hasPermission = await requestNotificationPermission();
-  if (!hasPermission) return null;
+  try {
+    if (!(await isNotificationsAvailable())) return null;
+    const hasPermission = await requestNotificationPermission();
+    if (!hasPermission) return null;
 
-  const messages: Record<number, string> = {
-    3: "3 days clean! The hardest part is over. Keep going!",
-    7: "One week strong! You're rewiring your brain.",
-    14: "Two weeks! Your discipline is inspiring.",
-    30: "One month! You're a completely different person now.",
-    60: "60 days! Most people never make it this far.",
-    90: "90 days! Scientifically proven: your brain has changed.",
-  };
+    const messages: Record<number, string> = {
+      3: "3 days clean! The hardest part is over. Keep going!",
+      7: "One week strong! You're rewiring your brain.",
+      14: "Two weeks! Your discipline is inspiring.",
+      30: "One month! You're a completely different person now.",
+      60: "60 days! Most people never make it this far.",
+      90: "90 days! Scientifically proven: your brain has changed.",
+    };
 
-  const message = messages[days];
-  if (!message) return null;
+    const message = messages[days];
+    if (!message) return null;
 
-  const id = await Notifications.scheduleNotificationAsync({
-    content: {
-      title: `${days}-Day Milestone!`,
-      body: message,
-      data: { type: 'streak_reminder', days },
-    },
-    trigger: {
-      type: Notifications.SchedulableTriggerInputTypes.DAILY,
-      hour: 9,
-      minute: 0,
-    },
-  });
+    const id = await Notifications.scheduleNotificationAsync({
+      content: {
+        title: `${days}-Day Milestone!`,
+        body: message,
+        data: { type: 'streak_reminder', days },
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DAILY,
+        hour: 9,
+        minute: 0,
+      },
+    });
 
-  return id;
+    return id;
+  } catch {
+    return null;
+  }
 }
 
 export async function cancelAllNotifications(): Promise<void> {
-  await Notifications.cancelAllScheduledNotificationsAsync();
+  try {
+    if (!(await isNotificationsAvailable())) return;
+    await Notifications.cancelAllScheduledNotificationsAsync();
+  } catch {}
 }
 
 export async function getScheduledNotifications(): Promise<Notifications.NotificationRequest[]> {
-  return Notifications.getAllScheduledNotificationsAsync();
+  try {
+    if (!(await isNotificationsAvailable())) return [];
+    return await Notifications.getAllScheduledNotificationsAsync();
+  } catch {
+    return [];
+  }
 }
