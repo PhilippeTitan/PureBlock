@@ -8,9 +8,21 @@ import {
   getSchedules,
   getLastSyncTime,
   setLastSyncTime,
+  saveProfiles,
+  saveBlockedApps,
+  saveBlockedWebsites,
+  saveSchedules,
 } from './localStore';
-
-const API_BASE = ''; // Set to backend URL when deployed
+import {
+  saveProfile,
+  saveBlockedApp,
+  saveBlockedWebsite,
+  saveSchedule,
+  fetchProfiles,
+  fetchBlockedApps,
+  fetchBlockedWebsites,
+  fetchSchedules,
+} from '../api';
 
 interface SyncResult {
   success: boolean;
@@ -22,16 +34,6 @@ async function isOnline(): Promise<boolean> {
   if (Platform.OS === 'web') return navigator.onLine;
   const net = await Network.getNetworkStateAsync();
   return net.isConnected ?? false;
-}
-
-async function apiCall<T>(path: string, options?: RequestInit): Promise<T> {
-  if (!API_BASE) throw new Error('No API base URL configured');
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-  });
-  if (!res.ok) throw new Error(`API error: ${res.status}`);
-  return res.json();
 }
 
 // Push local data to server
@@ -49,52 +51,36 @@ export async function pushToServer(userId: string): Promise<SyncResult> {
       getSchedules(),
     ]);
 
-    // Push profiles
     for (const p of profiles) {
       try {
-        await apiCall('/api/profiles', {
-          method: 'POST',
-          body: JSON.stringify({ ...p, userId }),
-        });
+        await saveProfile(p, userId);
         synced++;
       } catch (e: any) {
         errors.push(`Profile ${p.id}: ${e.message}`);
       }
     }
 
-    // Push blocked apps
     for (const app of blockedApps) {
       try {
-        await apiCall('/api/blocked-apps', {
-          method: 'POST',
-          body: JSON.stringify({ ...app, userId }),
-        });
+        await saveBlockedApp(app, userId);
         synced++;
       } catch (e: any) {
         errors.push(`App ${app.id}: ${e.message}`);
       }
     }
 
-    // Push blocked websites
     for (const w of blockedWebsites) {
       try {
-        await apiCall('/api/blocked-websites', {
-          method: 'POST',
-          body: JSON.stringify({ ...w, userId }),
-        });
+        await saveBlockedWebsite(w, userId);
         synced++;
       } catch (e: any) {
         errors.push(`Website ${w.id}: ${e.message}`);
       }
     }
 
-    // Push schedules
     for (const s of schedules) {
       try {
-        await apiCall('/api/schedules', {
-          method: 'POST',
-          body: JSON.stringify({ ...s, userId }),
-        });
+        await saveSchedule(s, userId);
         synced++;
       } catch (e: any) {
         errors.push(`Schedule ${s.id}: ${e.message}`);
@@ -119,16 +105,12 @@ export async function pullFromServer(userId: string): Promise<SyncResult> {
   let synced = 0;
 
   try {
-    // Pull each entity type from server
     const [profiles, apps, websites, schedules] = await Promise.all([
-      apiCall<Profile[]>(`/api/profiles?userId=${userId}`).catch(() => []),
-      apiCall<BlockedApp[]>(`/api/blocked-apps?userId=${userId}`).catch(() => []),
-      apiCall<BlockedWebsite[]>(`/api/blocked-websites?userId=${userId}`).catch(() => []),
-      apiCall<Schedule[]>(`/api/schedules?userId=${userId}`).catch(() => []),
+      fetchProfiles(userId).catch(() => []),
+      fetchBlockedApps(userId).catch(() => []),
+      fetchBlockedWebsites(userId).catch(() => []),
+      fetchSchedules(userId).catch(() => []),
     ]);
-
-    // Save to local storage
-    const { saveProfiles, saveBlockedApps, saveBlockedWebsites, saveSchedules } = await import('./localStore');
 
     if (profiles.length > 0) {
       await saveProfiles(profiles);

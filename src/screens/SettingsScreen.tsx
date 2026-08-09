@@ -1,15 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Switch } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING } from '../theme';
 import ScreenHeader from '../components/ScreenHeader';
+import { useAppStore } from '../store/StoreContext';
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
-  const [strictMode, setStrictMode] = React.useState(false);
-  const [notifications, setNotifications] = React.useState(true);
-  const [dailyReport, setDailyReport] = React.useState(false);
+  const { settings, updateSettings } = useAppStore();
 
   return (
     <View style={styles.container}>
@@ -31,10 +29,10 @@ export default function SettingsScreen() {
             </Text>
           </View>
           <Switch
-            value={strictMode}
-            onValueChange={setStrictMode}
+            value={settings.strictMode}
+            onValueChange={(v) => updateSettings({ strictMode: v })}
             trackColor={{ false: COLORS.gray80, true: COLORS.primary + '80' }}
-            thumbColor={strictMode ? COLORS.primary : COLORS.gray40}
+            thumbColor={settings.strictMode ? COLORS.primary : COLORS.gray40}
           />
         </View>
 
@@ -45,7 +43,9 @@ export default function SettingsScreen() {
               Require PIN to change settings
             </Text>
           </View>
-          <Text style={styles.settingValue}>Not Set</Text>
+          <Text style={styles.settingValue}>
+            {settings.pinHash ? 'Set' : 'Not Set'}
+          </Text>
         </View>
       </View>
 
@@ -60,25 +60,10 @@ export default function SettingsScreen() {
             </Text>
           </View>
           <Switch
-            value={notifications}
-            onValueChange={setNotifications}
+            value={settings.notificationsEnabled}
+            onValueChange={(v) => updateSettings({ notificationsEnabled: v })}
             trackColor={{ false: COLORS.gray80, true: COLORS.primary + '80' }}
-            thumbColor={notifications ? COLORS.primary : COLORS.gray40}
-          />
-        </View>
-
-        <View style={styles.settingItem}>
-          <View style={styles.settingInfo}>
-            <Text style={styles.settingLabel}>Daily Report</Text>
-            <Text style={styles.settingDescription}>
-              Receive daily blocking summary
-            </Text>
-          </View>
-          <Switch
-            value={dailyReport}
-            onValueChange={setDailyReport}
-            trackColor={{ false: COLORS.gray80, true: COLORS.primary + '80' }}
-            thumbColor={dailyReport ? COLORS.primary : COLORS.gray40}
+            thumbColor={settings.notificationsEnabled ? COLORS.primary : COLORS.gray40}
           />
         </View>
       </View>

@@ -62,10 +62,12 @@ export function useStore() {
 
       const data = await loadAllLocalData();
       setState({
-        userId: uid,
         ...data,
+        userId: uid,
         isOnline: false,
         isLoading: false,
+        isBlocking: false,
+        blockingSince: null,
       });
     })();
   }, []);

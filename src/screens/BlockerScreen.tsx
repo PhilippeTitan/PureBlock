@@ -45,7 +45,7 @@ export default function BlockerScreen() {
   };
 
   const handleOpenSettings = () => {
-    navigation.navigate('Main', { screen: 'Settings' });
+    (navigation as any).navigate('Main', { screen: 'Settings' });
   };
 
   return (

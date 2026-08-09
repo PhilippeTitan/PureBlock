@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 export interface InstalledApp {
   packageName: string;
   appName: string;
-  versionName: string;
+  versionName?: string;
 }
 
 // Common apps for development/testing

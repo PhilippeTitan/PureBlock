@@ -1,7 +1,7 @@
 import React, { createContext, useContext } from 'react';
 import { useStore, AppState } from './useStore';
 
-const StoreContext = createContext<AppState & {
+type StoreActions = {
   addProfile: (name: string) => Promise<any>;
   updateProfile: (id: string, updates: Partial<any>) => Promise<void>;
   deleteProfile: (id: string) => Promise<void>;
@@ -13,7 +13,12 @@ const StoreContext = createContext<AppState & {
   deleteSchedule: (id: string) => Promise<void>;
   updateSettings: (updates: any) => Promise<void>;
   sync: () => Promise<any>;
-} | null>(null);
+  toggleBlocking: () => Promise<void>;
+  startBlocking: () => Promise<void>;
+  stopBlocking: () => Promise<void>;
+};
+
+const StoreContext = createContext<(AppState & StoreActions) | null>(null);
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const store = useStore();
