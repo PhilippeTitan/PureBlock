@@ -96,17 +96,19 @@ export default function EmergencyUnlock() {
 
   return (
     <View>
-      <TouchableOpacity style={styles.row} onPress={() => setShowModal(true)}>
-        <View style={styles.rowLeft}>
-          <Ionicons name="key" size={20} color={COLORS.warning} />
-          <View style={styles.rowInfo}>
-            <Text style={styles.rowTitle}>Emergency Unlock</Text>
-            <Text style={styles.rowSubtitle}>
-              {activeCodes.length} code{activeCodes.length !== 1 ? 's' : ''} available
+      <TouchableOpacity style={styles.highlightRow} onPress={() => setShowModal(true)}>
+        <View style={styles.highlightHeader}>
+          <Ionicons name="key" size={18} color={COLORS.warning} />
+          <Text style={styles.highlightTitle}>Emergency unlock</Text>
+          <View style={styles.countBadge}>
+            <Text style={styles.countBadgeText}>
+              {activeCodes.length} code{activeCodes.length !== 1 ? 's' : ''}
             </Text>
           </View>
         </View>
-        <Ionicons name="chevron-forward" size={18} color={COLORS.gray40} />
+        <Text style={styles.highlightDescription}>
+          One-time bypass codes for real emergencies. {COOLDOWN_HOURS}h cooldown once used up.
+        </Text>
       </TouchableOpacity>
 
       <Modal visible={showModal} animationType="slide" transparent>
@@ -188,33 +190,41 @@ export default function EmergencyUnlock() {
 }
 
 const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: COLORS.surface,
-    borderRadius: 12,
+  highlightRow: {
+    backgroundColor: COLORS.primary + '12',
+    borderWidth: 1,
+    borderColor: COLORS.primary + '35',
+    borderRadius: BORDER_RADIUS.xl,
     padding: SPACING.md,
     marginBottom: SPACING.sm,
   },
-  rowLeft: {
+  highlightHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.md,
-    flex: 1,
+    gap: SPACING.sm,
+    marginBottom: SPACING.xs,
   },
-  rowInfo: {
+  highlightTitle: {
     flex: 1,
-  },
-  rowTitle: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 14,
+    fontWeight: '600',
     color: COLORS.white,
   },
-  rowSubtitle: {
-    fontSize: 12,
+  countBadge: {
+    backgroundColor: COLORS.warning + '25',
+    borderRadius: BORDER_RADIUS.sm,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: 3,
+  },
+  countBadgeText: {
+    fontSize: 10,
+    fontWeight: '500',
+    color: COLORS.warning,
+  },
+  highlightDescription: {
+    fontSize: 11,
     color: COLORS.gray40,
-    marginTop: 2,
+    lineHeight: 16,
   },
   modalOverlay: {
     flex: 1,

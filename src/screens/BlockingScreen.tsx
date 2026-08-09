@@ -1,12 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput } from 'react-native';
+import React, { useState, useEffect, useMemo } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TextInput, FlatList } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING } from '../theme';
+import { COLORS, SPACING, BORDER_RADIUS } from '../theme';
 import ScreenHeader from '../components/ScreenHeader';
 import { useAppStore } from '../store/StoreContext';
 import { getInstalledApps, InstalledApp } from '../services/appLister';
+import { BlockedApp } from '../types';
+
+// Best-effort icon/color per well-known package, so the list isn't just plain text rows.
+// Falls back to a neutral app icon for anything not in the table.
+const APP_STYLE: Record<string, { icon: keyof typeof Ionicons.glyphMap; color: string }> = {
+  'com.instagram.android': { icon: 'logo-instagram', color: COLORS.primary },
+  'com.zhiliaoapp.musically': { icon: 'logo-tiktok', color: COLORS.error },
+  'com.google.android.youtube': { icon: 'logo-youtube', color: COLORS.accent },
+  'com.twitter.android': { icon: 'logo-twitter', color: COLORS.info },
+  'com.reddit.frontpage': { icon: 'logo-reddit', color: '#FF5700' },
+  'com.facebook.katana': { icon: 'logo-facebook', color: COLORS.primary },
+};
+
+function getAppStyle(packageName: string) {
+  return APP_STYLE[packageName] ?? { icon: 'apps' as const, color: COLORS.gray40 };
+}
 
 export default function BlockingScreen() {
   const insets = useSafeAreaInsets();
@@ -53,59 +69,90 @@ export default function BlockingScreen() {
 
   const blockedPackages = new Set(blockedApps.map(b => b.packageName));
 
+  // Group blocked apps by profile so multi-profile users can see what belongs where.
+  const groupedByProfile = useMemo(() => {
+    const groups: { profileId: string; profileName: string; apps: BlockedApp[] }[] = [];
+    profiles.forEach(profile => {
+      const apps = blockedApps.filter(a => a.profileId === profile.id);
+      if (apps.length > 0) {
+        groups.push({ profileId: profile.id, profileName: profile.name, apps });
+      }
+    });
+    // Any blocked apps whose profile no longer exists
+    const orphaned = blockedApps.filter(a => !profiles.some(p => p.id === a.profileId));
+    if (orphaned.length > 0) {
+      groups.push({ profileId: 'orphaned', profileName: 'Unassigned', apps: orphaned });
+    }
+    return groups;
+  }, [blockedApps, profiles]);
+
   return (
     <View style={styles.container}>
-      <FlatList
-        data={blockedApps}
-        keyExtractor={(item) => item.id}
+      <ScreenHeader title="Blocked apps" subtitle={`${blockedApps.length} apps blocked`} />
+
+      <View style={styles.actionRow}>
+        <TouchableOpacity style={styles.primaryAction} onPress={openPicker}>
+          <Ionicons name="add" size={18} color={COLORS.white} />
+          <Text style={styles.primaryActionText}>Add app</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.secondaryAction}
+          onPress={() => navigation.navigate('Websites')}
+        >
+          <Ionicons name="globe-outline" size={18} color={COLORS.secondary} />
+          <Text style={styles.secondaryActionText}>Websites</Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView
         contentContainerStyle={[
           styles.listContent,
           { paddingBottom: insets.bottom + SPACING.lg }
         ]}
-        ListHeaderComponent={
-          <View>
-            <ScreenHeader title="Blocked Apps" subtitle={`${blockedApps.length} apps blocked`} />
-            <TouchableOpacity
-              style={styles.websiteButton}
-              onPress={() => navigation.navigate('Websites')}
-            >
-              <Ionicons name="globe" size={20} color={COLORS.secondary} />
-              <Text style={styles.websiteButtonText}>Manage Blocked Websites</Text>
-              <Ionicons name="chevron-forward" size={18} color={COLORS.gray40} />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.addButton} onPress={openPicker}>
-              <Ionicons name="add-circle" size={20} color={COLORS.primary} />
-              <Text style={styles.addButtonText}>Add App to Block</Text>
-            </TouchableOpacity>
-          </View>
-        }
-        ListEmptyComponent={
+      >
+        {groupedByProfile.length === 0 ? (
           <View style={styles.emptyState}>
-            <Ionicons name="lock-closed" size={48} color={COLORS.gray60} />
+            <Ionicons name="lock-closed-outline" size={40} color={COLORS.gray60} />
             <Text style={styles.emptyTitle}>No blocked apps yet</Text>
-            <Text style={styles.emptyDescription}>
-              Tap "Add App to Block" to select apps
-            </Text>
-          </View>
-        }
-        renderItem={({ item }) => (
-          <View style={styles.appCard}>
-            <View style={styles.appInfo}>
-              <Text style={styles.appName}>{item.appName}</Text>
-              <Text style={styles.packageName}>{item.packageName}</Text>
+            <View style={styles.tipCard}>
+              <Ionicons name="bulb-outline" size={18} color={COLORS.accent} />
+              <Text style={styles.tipText}>
+                Tip: group apps by profile (Work, Sleep, Study) so you only block what
+                matters for the moment.
+              </Text>
             </View>
-            <TouchableOpacity onPress={() => removeBlockedApp(item.id)}>
-              <Ionicons name="close-circle" size={24} color={COLORS.danger} />
-            </TouchableOpacity>
           </View>
+        ) : (
+          groupedByProfile.map(group => (
+            <View key={group.profileId} style={styles.group}>
+              <Text style={styles.groupTitle}>{group.profileName}</Text>
+              {group.apps.map(item => {
+                const style = getAppStyle(item.packageName);
+                return (
+                  <View key={item.id} style={styles.appCard}>
+                    <View style={[styles.appIcon, { backgroundColor: style.color + '20' }]}>
+                      <Ionicons name={style.icon} size={18} color={style.color} />
+                    </View>
+                    <View style={styles.appInfo}>
+                      <Text style={styles.appName}>{item.appName}</Text>
+                      <Text style={styles.packageName}>{item.packageName}</Text>
+                    </View>
+                    <TouchableOpacity onPress={() => removeBlockedApp(item.id)} hitSlop={8}>
+                      <Ionicons name="close" size={20} color={COLORS.gray40} />
+                    </TouchableOpacity>
+                  </View>
+                );
+              })}
+            </View>
+          ))
         )}
-      />
+      </ScrollView>
 
       <Modal visible={showPicker} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select App to Block</Text>
+              <Text style={styles.modalTitle}>Select app to block</Text>
               <TouchableOpacity onPress={() => setShowPicker(false)}>
                 <Ionicons name="close" size={24} color={COLORS.white} />
               </TouchableOpacity>
@@ -125,12 +172,16 @@ export default function BlockingScreen() {
               style={styles.appList}
               renderItem={({ item }) => {
                 const isBlocked = blockedPackages.has(item.packageName);
+                const style = getAppStyle(item.packageName);
                 return (
                   <TouchableOpacity
                     style={[styles.pickerItem, isBlocked && styles.pickerItemBlocked]}
                     onPress={() => !isBlocked && handleAddApp(item)}
                     disabled={isBlocked}
                   >
+                    <View style={[styles.appIcon, { backgroundColor: style.color + '20' }]}>
+                      <Ionicons name={style.icon} size={16} color={style.color} />
+                    </View>
                     <View style={styles.pickerItemInfo}>
                       <Text style={styles.pickerItemName}>{item.appName}</Text>
                       <Text style={styles.pickerItemPackage}>{item.packageName}</Text>
@@ -156,70 +207,110 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
+  actionRow: {
+    flexDirection: 'row',
+    gap: SPACING.sm,
+    paddingHorizontal: SPACING.lg,
+    marginBottom: SPACING.md,
+  },
+  primaryAction: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.sm,
+    backgroundColor: COLORS.primary,
+    borderRadius: BORDER_RADIUS.lg,
+    paddingVertical: SPACING.md,
+  },
+  primaryActionText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.white,
+  },
+  secondaryAction: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.sm,
+    backgroundColor: COLORS.surface,
+    borderRadius: BORDER_RADIUS.lg,
+    paddingVertical: SPACING.md,
+  },
+  secondaryActionText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.secondary,
+  },
   listContent: {
     paddingHorizontal: SPACING.lg,
   },
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
+  group: {
     marginBottom: SPACING.lg,
   },
-  addButtonText: {
-    fontSize: 16,
-    color: COLORS.primary,
+  groupTitle: {
+    fontSize: 12,
     fontWeight: '600',
-  },
-  websiteButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-    backgroundColor: COLORS.gray90,
-    borderRadius: 12,
-    padding: SPACING.md,
-    marginBottom: SPACING.lg,
-  },
-  websiteButtonText: {
-    flex: 1,
-    fontSize: 15,
-    color: COLORS.secondary,
-    fontWeight: '500',
+    color: COLORS.gray40,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: SPACING.sm,
   },
   emptyState: {
     alignItems: 'center',
-    paddingTop: SPACING.xxl,
+    paddingTop: SPACING.xl,
     gap: SPACING.md,
   },
   emptyTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: COLORS.white,
-    marginBottom: SPACING.sm,
   },
-  emptyDescription: {
-    fontSize: 14,
+  tipCard: {
+    flexDirection: 'row',
+    gap: SPACING.sm,
+    backgroundColor: COLORS.surface,
+    borderRadius: BORDER_RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.gray80,
+    borderStyle: 'dashed',
+    padding: SPACING.md,
+    alignItems: 'flex-start',
+    marginTop: SPACING.sm,
+  },
+  tipText: {
+    flex: 1,
+    fontSize: 12,
     color: COLORS.gray40,
-    textAlign: 'center',
+    lineHeight: 17,
   },
   appCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: SPACING.md,
     backgroundColor: COLORS.gray90,
-    borderRadius: 12,
+    borderRadius: BORDER_RADIUS.lg,
     padding: SPACING.md,
     marginBottom: SPACING.sm,
+  },
+  appIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: BORDER_RADIUS.md,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   appInfo: {
     flex: 1,
   },
   appName: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 15,
+    fontWeight: '500',
     color: COLORS.white,
   },
   packageName: {
-    fontSize: 12,
+    fontSize: 11,
     color: COLORS.gray40,
     marginTop: 2,
   },
@@ -262,8 +353,8 @@ const styles = StyleSheet.create({
   pickerItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: SPACING.md,
+    gap: SPACING.md,
+    paddingVertical: SPACING.sm,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.gray80,
   },
@@ -274,11 +365,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   pickerItemName: {
-    fontSize: 16,
+    fontSize: 15,
     color: COLORS.white,
   },
   pickerItemPackage: {
-    fontSize: 12,
+    fontSize: 11,
     color: COLORS.gray40,
     marginTop: 2,
   },
