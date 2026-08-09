@@ -148,7 +148,7 @@ export default function OnboardingScreen() {
           );
         })}
       </View>
-      <View style={styles.spacer} />
+      <View style={styles.spacerMin} />
       <TouchableOpacity
         style={[styles.primaryButton, selectedProblems.length === 0 && styles.disabledButton]}
         onPress={handleNext}
@@ -233,7 +233,7 @@ export default function OnboardingScreen() {
       <Text style={styles.permissionNote}>
         You can grant these later in Settings. Blocking won't work until permissions are granted.
       </Text>
-      <View style={styles.spacer} />
+      <View style={styles.spacerMin} />
       <TouchableOpacity style={styles.primaryButton} onPress={handleNext}>
         <Text style={styles.primaryButtonText}>Continue</Text>
         <Ionicons name="arrow-forward" size={20} color={COLORS.white} />
@@ -347,6 +347,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: SPACING.xl,
+    paddingTop: SPACING.md,
   },
   stepCenter: {
     justifyContent: 'center',
@@ -356,9 +357,8 @@ const styles = StyleSheet.create({
   stepTop: {
     alignItems: 'center',
   },
-  spacer: {
-    flex: 1,
-    minHeight: 20,
+  spacerMin: {
+    minHeight: SPACING.xl,
   },
   iconCircle: {
     width: 120,
