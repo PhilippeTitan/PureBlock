@@ -24,6 +24,7 @@ import {
 } from './localStore';
 import { fullSync } from './syncEngine';
 import { generateId } from '../utils';
+import { PureBlockNative } from '../native/PureBlockNative';
 
 export interface AppState {
   userId: string | null;
@@ -211,12 +212,22 @@ export function useStore() {
 
   // --- Quick Block ---
   const toggleBlocking = useCallback(async () => {
+    const willBeBlocking = !state.isBlocking;
+
     setState(s => ({
       ...s,
-      isBlocking: !s.isBlocking,
-      blockingSince: !s.isBlocking ? new Date().toISOString() : null,
+      isBlocking: willBeBlocking,
+      blockingSince: willBeBlocking ? new Date().toISOString() : null,
     }));
-  }, []);
+
+    if (willBeBlocking) {
+      const packages = state.blockedApps.map(a => a.packageName);
+      const urls = state.blockedWebsites.map(w => w.url);
+      PureBlockNative.startBlockingService(packages, urls);
+    } else {
+      PureBlockNative.stopBlockingService();
+    }
+  }, [state.isBlocking, state.blockedApps, state.blockedWebsites]);
 
   const startBlocking = useCallback(async () => {
     setState(s => ({
@@ -224,7 +235,11 @@ export function useStore() {
       isBlocking: true,
       blockingSince: new Date().toISOString(),
     }));
-  }, []);
+
+    const packages = state.blockedApps.map(a => a.packageName);
+    const urls = state.blockedWebsites.map(w => w.url);
+    PureBlockNative.startBlockingService(packages, urls);
+  }, [state.blockedApps, state.blockedWebsites]);
 
   const stopBlocking = useCallback(async () => {
     setState(s => ({
@@ -232,6 +247,8 @@ export function useStore() {
       isBlocking: false,
       blockingSince: null,
     }));
+
+    PureBlockNative.stopBlockingService();
   }, []);
 
   return {

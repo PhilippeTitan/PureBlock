@@ -151,13 +151,13 @@ This project has a persistent knowledge base at `NOTES/`. Use it:
 | 1 | Expo project setup | ✅ | React Native/Expo with TypeScript |
 | 2 | Basic UI screens | ✅ | Home, Blocking, Stats, Settings with safe areas + headers |
 | 3 | Navigation | ✅ | Bottom tabs + stack navigator |
-| 4 | Native Kotlin module skeleton | ⏳ | Kotlin module for blocking engine (needs Android Studio) |
+| 4 | Native Kotlin module skeleton | ✅ | Kotlin module for blocking engine (PureBlockModule, AccessibilityService, DeviceAdmin, ForegroundService) |
 
 ### 🟡 Phase 1: Core Blocking — 4 features
 | # | Feature | Status | Description |
 |---|---------|--------|-------------|
 | 5 | App listing from device | ✅ | Get installed apps, show name/icon/package |
-| 6 | App blocking via foreground service | ⏳ | Block apps by package name in background (needs native) |
+| 6 | App blocking via foreground service | ✅ | Block apps by package name in background via accessibility service + foreground service |
 | 7 | Blocking overlay screen | ✅ | Show screen when blocked app is opened |
 | 8 | Quick block toggle | ✅ | One-tap emergency block/unblock button |
 
@@ -172,8 +172,8 @@ This project has a persistent knowledge base at `NOTES/`. Use it:
 ### 🔵 Phase 3: Anti-Bypass — 4 features
 | # | Feature | Status | Description |
 |---|---------|--------|-------------|
-| 13 | Strict mode (device admin) | ⏳ | Prevent uninstall, hard to disable (needs native) |
-| 14 | PIN protection | ⏳ | PIN to change settings/disable blocking (settings only) |
+| 13 | Strict mode (device admin) | ✅ | Prevent uninstall, hard to disable (native device admin) |
+| 14 | PIN protection | ✅ | PIN to change settings/disable blocking (settings only) |
 | 15 | Emergency unlock codes | ✅ | Backdoor codes with limited uses |
 | 16 | Location-based profiles | ✅ | Auto-activate profile by GPS geofence |
 
@@ -189,9 +189,9 @@ This project has a persistent knowledge base at `NOTES/`. Use it:
 
 ### Summary
 - **Total features:** 22
-- **Completed:** 15 ✅
-- **In Progress:** 5 ⏳
-- **Not Built:** 2 ❌
+- **Completed:** 19 ✅
+- **In Progress:** 2 ⏳
+- **Not Built:** 1 ❌
 
 ## Key Observations
 1. Native Kotlin module is REQUIRED for proper blocking
