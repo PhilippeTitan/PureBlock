@@ -93,9 +93,10 @@ export default function App() {
             {!onboardingDone ? (
               <Stack.Screen
                 name="Onboarding"
-                component={OnboardingScreen}
                 options={{ headerShown: false }}
-              />
+              >
+                {() => <OnboardingScreen onComplete={() => setOnboardingDone(true)} />}
+              </Stack.Screen>
             ) : (
               <>
                 <Stack.Screen

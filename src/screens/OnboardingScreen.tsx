@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, BORDER_RADIUS } from '../theme';
 import { useAppStore } from '../store/StoreContext';
@@ -43,8 +44,13 @@ const PERMISSIONS = [
 
 const STEPS = ['welcome', 'problems', 'apps', 'permissions', 'done'] as const;
 
-export default function OnboardingScreen() {
+interface Props {
+  onComplete?: () => void;
+}
+
+export default function OnboardingScreen({ onComplete }: Props) {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<any>();
   const { addProfile, addBlockedApp } = useAppStore();
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedProblems, setSelectedProblems] = useState<string[]>([]);
@@ -90,6 +96,7 @@ export default function OnboardingScreen() {
     }
     await addProfile('Default');
     await setOnboardingComplete();
+    onComplete?.();
   };
 
   const renderStep = () => {
