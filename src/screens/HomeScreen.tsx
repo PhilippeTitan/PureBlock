@@ -116,40 +116,14 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <Text style={styles.sectionTitle}>Quick actions</Text>
-        <View style={styles.quickGrid}>
-          <TouchableOpacity
-            style={styles.quickButton}
-            onPress={() => navigation.navigate('Blocking')}
-          >
-            <Ionicons name="add-circle-outline" size={18} color={COLORS.primary} />
-            <Text style={styles.quickButtonText}>Add app</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.quickButton}
-            onPress={() => navigation.navigate('Profiles')}
-          >
-            <Ionicons name="people-outline" size={18} color={COLORS.secondary} />
-            <Text style={styles.quickButtonText}>Profiles</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.quickButton}
-            onPress={() => navigation.navigate('LocationProfiles')}
-          >
-            <Ionicons name="location-outline" size={18} color={COLORS.accent} />
-            <Text style={styles.quickButtonText}>Locations</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.quickButton}
-            onPress={() => navigation.navigate('Stats')}
-          >
-            <Ionicons name="bar-chart-outline" size={18} color={COLORS.gray40} />
-            <Text style={styles.quickButtonText}>Stats</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => navigation.navigate('Blocking')}
+          activeOpacity={0.85}
+        >
+          <Ionicons name="add-circle" size={22} color={COLORS.white} />
+          <Text style={styles.addButtonText}>Add app to block</Text>
+        </TouchableOpacity>
 
         {showMoodBanner && (
           <TouchableOpacity style={styles.moodBanner} onPress={() => setShowMoodModal(true)}>
@@ -270,34 +244,20 @@ const styles = StyleSheet.create({
     color: COLORS.gray40,
     marginTop: 2,
   },
-  sectionTitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: COLORS.gray40,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: SPACING.sm,
-    marginTop: SPACING.xs,
-  },
-  quickGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: SPACING.sm,
-    marginBottom: SPACING.md,
-  },
-  quickButton: {
-    flexBasis: '47%',
-    flexGrow: 1,
+  addButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: SPACING.sm,
-    backgroundColor: COLORS.surface,
+    backgroundColor: COLORS.primary,
     borderRadius: BORDER_RADIUS.lg,
-    padding: SPACING.md,
+    paddingVertical: SPACING.lg,
+    marginBottom: SPACING.md,
   },
-  quickButtonText: {
-    fontSize: 13,
-    color: COLORS.gray20,
+  addButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.white,
   },
   moodBanner: {
     flexDirection: 'row',
