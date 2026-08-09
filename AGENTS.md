@@ -181,7 +181,7 @@ This project has a persistent knowledge base at `NOTES/`. Use it:
 | # | Feature | Status | Description |
 |---|---------|--------|-------------|
 | 17 | Blocked attempts counter | ⏳ | Track per-app block counts (schema ready) |
-| 18 | Usage statistics dashboard | ❌ | Daily/weekly/monthly reports |
+| 18 | Usage statistics dashboard | ✅ | Daily/weekly/monthly reports |
 | 19 | Motivational messages | ✅ | Quotes on blocking screen + daily notifications |
 | 20 | Pomodoro timer | ❌ | Focus sessions with block during timer |
 | 21 | Mood check-in | ❌ | Ask mood before/after blocking sessions |
@@ -189,9 +189,9 @@ This project has a persistent knowledge base at `NOTES/`. Use it:
 
 ### Summary
 - **Total features:** 22
-- **Completed:** 10 ✅
+- **Completed:** 11 ✅
 - **In Progress:** 6 ⏳
-- **Not Built:** 6 ❌
+- **Not Built:** 5 ❌
 
 ## Key Observations
 1. Native Kotlin module is REQUIRED for proper blocking
