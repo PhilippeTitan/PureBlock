@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING } from '../theme';
 import ScreenHeader from '../components/ScreenHeader';
@@ -21,6 +22,7 @@ const SUGGESTED_URLS = [
 
 export default function WebsiteBlockingScreen() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
   const { blockedWebsites, removeBlockedWebsite, addBlockedWebsite, profiles } = useAppStore();
   const [showAddModal, setShowAddModal] = useState(false);
   const [urlInput, setUrlInput] = useState('');
@@ -69,6 +71,7 @@ export default function WebsiteBlockingScreen() {
             <ScreenHeader
               title="Blocked Websites"
               subtitle={`${profileBlocked.length} websites blocked`}
+              onBack={() => navigation.goBack()}
             />
             <TouchableOpacity
               style={styles.addButton}
