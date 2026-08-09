@@ -7,6 +7,7 @@ import { COLORS, SPACING, BORDER_RADIUS } from '../theme';
 import ScreenHeader from '../components/ScreenHeader';
 import EmergencyUnlock from '../components/EmergencyUnlock';
 import { useAppStore } from '../store/StoreContext';
+import { scheduleDailyMotivation, cancelAllNotifications } from '../services/notifications';
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
@@ -67,7 +68,14 @@ export default function SettingsScreen() {
           </View>
           <Switch
             value={settings.notificationsEnabled}
-            onValueChange={(v) => updateSettings({ notificationsEnabled: v })}
+            onValueChange={async (v) => {
+              await updateSettings({ notificationsEnabled: v });
+              if (v) {
+                await scheduleDailyMotivation();
+              } else {
+                await cancelAllNotifications();
+              }
+            }}
             trackColor={{ false: COLORS.gray80, true: COLORS.primary + '80' }}
             thumbColor={settings.notificationsEnabled ? COLORS.primary : COLORS.gray40}
           />
