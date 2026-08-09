@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput, Platform } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING } from '../theme';
 import ScreenHeader from '../components/ScreenHeader';
 import { useAppStore } from '../store/StoreContext';
-
-interface InstalledApp {
-  packageName: string;
-  appName: string;
-  versionName: string;
-}
+import { getInstalledApps, InstalledApp } from '../services/appLister';
 
 export default function BlockingScreen() {
   const insets = useSafeAreaInsets();
@@ -28,20 +23,8 @@ export default function BlockingScreen() {
   }, [profiles, selectedProfileId]);
 
   const loadInstalledApps = async () => {
-    if (Platform.OS !== 'android') {
-      setInstalledApps([
-        { packageName: 'com.example.app1', appName: 'Example App 1', versionName: '1.0.0' },
-        { packageName: 'com.example.app2', appName: 'Example App 2', versionName: '2.0.0' },
-      ]);
-      return;
-    }
-    try {
-      const { ExpoAndroidAppList } = await import('expo-android-app-list');
-      const apps = await ExpoAndroidAppList.getAll();
-      setInstalledApps(apps);
-    } catch (e) {
-      console.warn('Failed to load installed apps:', e);
-    }
+    const apps = await getInstalledApps();
+    setInstalledApps(apps);
   };
 
   const openPicker = async () => {

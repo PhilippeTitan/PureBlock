@@ -1,11 +1,19 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import { COLORS, SPACING } from '../theme';
 import ScreenHeader from '../components/ScreenHeader';
+import { useAppStore } from '../store/StoreContext';
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<any>();
+  const { blockedApps, profiles, blockedWebsites } = useAppStore();
+
+  const activeProfile = profiles.find(p => p.isActive);
+  const hasBlockedApps = blockedApps.length > 0;
 
   return (
     <View style={styles.container}>
@@ -18,20 +26,62 @@ export default function HomeScreen() {
       >
         <View style={styles.statusCard}>
           <Text style={styles.statusLabel}>Blocking Status</Text>
-          <Text style={styles.statusValue}>Inactive</Text>
-          <Text style={styles.statusDetail}>No active blocking session</Text>
+          <Text style={[styles.statusValue, hasBlockedApps && styles.statusActive]}>
+            {hasBlockedApps ? 'Active' : 'Inactive'}
+          </Text>
+          <Text style={styles.statusDetail}>
+            {activeProfile
+              ? `Profile: ${activeProfile.name}`
+              : 'No active blocking session'}
+          </Text>
+        </View>
+
+        <View style={styles.statsRow}>
+          <View style={styles.statItem}>
+            <Ionicons name="lock-closed" size={24} color={COLORS.primary} />
+            <Text style={styles.statNumber}>{blockedApps.length}</Text>
+            <Text style={styles.statLabel}>Blocked Apps</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Ionicons name="globe" size={24} color={COLORS.secondary} />
+            <Text style={styles.statNumber}>{blockedWebsites.length}</Text>
+            <Text style={styles.statLabel}>Blocked Sites</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Ionicons name="people" size={24} color={COLORS.accent} />
+            <Text style={styles.statNumber}>{profiles.length}</Text>
+            <Text style={styles.statLabel}>Profiles</Text>
+          </View>
         </View>
 
         <View style={styles.quickActions}>
-          <View style={styles.quickButton}>
-            <Text style={styles.quickButtonText}>Quick Block</Text>
-          </View>
-          <View style={[styles.quickButton, styles.quickButtonSecondary]}>
+          <TouchableOpacity
+            style={styles.quickButton}
+            onPress={() => navigation.navigate('Blocking')}
+          >
+            <Ionicons name="add-circle" size={24} color={COLORS.white} />
+            <Text style={styles.quickButtonText}>Add Blocked App</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.quickButton, styles.quickButtonSecondary]}
+            onPress={() => navigation.navigate('Profiles')}
+          >
+            <Ionicons name="people-outline" size={24} color={COLORS.gray20} />
             <Text style={[styles.quickButtonText, styles.quickButtonTextSecondary]}>
-              View Stats
+              Manage Profiles
             </Text>
-          </View>
+          </TouchableOpacity>
         </View>
+
+        <TouchableOpacity
+          style={styles.blockerPreview}
+          onPress={() => navigation.navigate('Blocker', { appName: 'Instagram', packageName: 'com.instagram.android' })}
+        >
+          <Ionicons name="eye-outline" size={20} color={COLORS.gray40} />
+          <Text style={styles.blockerPreviewText}>Preview Blocking Screen</Text>
+          <Ionicons name="chevron-forward" size={20} color={COLORS.gray40} />
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );
@@ -62,20 +112,47 @@ const styles = StyleSheet.create({
     color: COLORS.gray40,
     marginBottom: SPACING.xs,
   },
+  statusActive: {
+    color: COLORS.success,
+  },
   statusDetail: {
     fontSize: 14,
     color: COLORS.gray40,
   },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: SPACING.xl,
+  },
+  statItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: COLORS.white,
+    marginTop: SPACING.sm,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: COLORS.gray40,
+    marginTop: SPACING.xs,
+  },
   quickActions: {
     flexDirection: 'row',
     gap: SPACING.md,
+    marginBottom: SPACING.xl,
   },
   quickButton: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.sm,
     backgroundColor: COLORS.primary,
     borderRadius: 12,
     padding: SPACING.md,
-    alignItems: 'center',
   },
   quickButtonSecondary: {
     backgroundColor: COLORS.surface,
@@ -84,10 +161,24 @@ const styles = StyleSheet.create({
   },
   quickButtonText: {
     color: COLORS.white,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
   },
   quickButtonTextSecondary: {
     color: COLORS.gray20,
+  },
+  blockerPreview: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: COLORS.surface,
+    borderRadius: 12,
+    padding: SPACING.md,
+  },
+  blockerPreviewText: {
+    flex: 1,
+    fontSize: 14,
+    color: COLORS.gray40,
+    marginLeft: SPACING.sm,
   },
 });

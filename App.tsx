@@ -12,6 +12,7 @@ import StatsScreen from './src/screens/StatsScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import ProfilesScreen from './src/screens/ProfilesScreen';
 import ScheduleScreen from './src/screens/ScheduleScreen';
+import BlockerScreen from './src/screens/BlockerScreen';
 import { StoreProvider } from './src/store/StoreContext';
 import { COLORS } from './src/theme';
 
@@ -91,6 +92,14 @@ export default function App() {
                 title: 'Schedule',
                 headerStyle: { backgroundColor: COLORS.gray95 },
                 headerTintColor: COLORS.white,
+              }}
+            />
+            <Stack.Screen
+              name="Blocker"
+              component={BlockerScreen}
+              options={{
+                headerShown: false,
+                presentation: 'modal',
               }}
             />
           </Stack.Navigator>
