@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
-import { COLORS, SPACING, BORDER_RADIUS } from '../theme';
+import { COLORS, SPACING, BORDER_RADIUS, TAB_BAR_HEIGHT } from '../theme';
 import ScreenHeader from '../components/ScreenHeader';
 import EmergencyUnlock from '../components/EmergencyUnlock';
 import { useAppStore } from '../store/StoreContext';
@@ -83,7 +83,7 @@ export default function SettingsScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.contentContainer,
-          { paddingBottom: insets.bottom + SPACING.lg }
+          { paddingBottom: insets.bottom + TAB_BAR_HEIGHT + SPACING.md }
         ]}
       >
       <View style={styles.section}>

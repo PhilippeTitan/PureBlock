@@ -61,3 +61,5 @@ export const BORDER_RADIUS = {
   xl: 16,
   round: 999,
 };
+
+export const TAB_BAR_HEIGHT = 70;

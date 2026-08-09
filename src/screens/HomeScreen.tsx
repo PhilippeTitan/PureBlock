@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS, SPACING, BORDER_RADIUS } from '../theme';
+import { COLORS, SPACING, BORDER_RADIUS, TAB_BAR_HEIGHT } from '../theme';
 import ScreenHeader from '../components/ScreenHeader';
 import PomodoroTimer from '../components/PomodoroTimer';
 import MoodCheckin, { shouldShowMoodCheckin, getMoodStreak } from '../components/MoodCheckin';
@@ -48,7 +48,7 @@ export default function HomeScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.contentContainer,
-          { paddingBottom: insets.bottom + SPACING.lg }
+          { paddingBottom: insets.bottom + TAB_BAR_HEIGHT + SPACING.md }
         ]}
       >
         {/* Status + primary action, merged into a single card */}

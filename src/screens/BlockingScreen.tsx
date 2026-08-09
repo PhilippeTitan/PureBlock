@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TextInput,
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, BORDER_RADIUS } from '../theme';
+import { COLORS, SPACING, BORDER_RADIUS, TAB_BAR_HEIGHT } from '../theme';
 import ScreenHeader from '../components/ScreenHeader';
 import { useAppStore } from '../store/StoreContext';
 import { getInstalledApps, InstalledApp } from '../services/appLister';
@@ -107,7 +107,7 @@ export default function BlockingScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.listContent,
-          { paddingBottom: insets.bottom + SPACING.lg }
+          { paddingBottom: insets.bottom + TAB_BAR_HEIGHT + SPACING.md }
         ]}
       >
         {groupedByProfile.length === 0 ? (
