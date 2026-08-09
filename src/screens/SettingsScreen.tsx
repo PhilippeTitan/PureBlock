@@ -16,7 +16,7 @@ export default function SettingsScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.contentContainer,
-          { paddingHorizontal: SPACING.lg, paddingBottom: insets.bottom + SPACING.lg }
+          { paddingBottom: insets.bottom + SPACING.lg }
         ]}
       >
       <View style={styles.section}>
@@ -100,6 +100,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   contentContainer: {
+    paddingHorizontal: SPACING.lg,
   },
   section: {
     marginBottom: SPACING.xl,
