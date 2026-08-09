@@ -123,14 +123,27 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity
-          style={styles.blockerPreview}
-          onPress={() => navigation.navigate('Blocker', { appName: 'Instagram', packageName: 'com.instagram.android' })}
-        >
-          <Ionicons name="eye-outline" size={20} color={COLORS.gray40} />
-          <Text style={styles.blockerPreviewText}>Preview Blocking Screen</Text>
-          <Ionicons name="chevron-forward" size={20} color={COLORS.gray40} />
-        </TouchableOpacity>
+        <View style={styles.quickActions}>
+          <TouchableOpacity
+            style={[styles.quickButton, styles.quickButtonSecondary]}
+            onPress={() => navigation.navigate('LocationProfiles')}
+          >
+            <Ionicons name="location-outline" size={20} color={COLORS.gray20} />
+            <Text style={[styles.quickButtonText, styles.quickButtonTextSecondary]}>
+              Location Profiles
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.quickButton, styles.quickButtonSecondary]}
+            onPress={() => navigation.navigate('Blocker', { appName: 'Instagram', packageName: 'com.instagram.android' })}
+          >
+            <Ionicons name="flask-outline" size={20} color={COLORS.gray20} />
+            <Text style={[styles.quickButtonText, styles.quickButtonTextSecondary]}>
+              Test Block
+            </Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
 
       <MoodCheckin

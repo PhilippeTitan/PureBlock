@@ -1,18 +1,81 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import * as DocumentPicker from 'expo-document-picker';
 import { COLORS, SPACING, BORDER_RADIUS } from '../theme';
 import ScreenHeader from '../components/ScreenHeader';
 import EmergencyUnlock from '../components/EmergencyUnlock';
 import { useAppStore } from '../store/StoreContext';
 import { scheduleDailyMotivation, cancelAllNotifications } from '../services/notifications';
+import { shareBackup, importBackup, parseBackupPreview } from '../services/backup';
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const { settings, updateSettings } = useAppStore();
+  const [isExporting, setIsExporting] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      const success = await shareBackup();
+      if (!success) {
+        Alert.alert('Export Failed', 'Could not export backup file.');
+      }
+    } catch {
+      Alert.alert('Export Failed', 'An error occurred while exporting.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleImport = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'application/json',
+        copyToCacheDirectory: true,
+      });
+
+      if (result.canceled || !result.assets?.[0]) return;
+
+      setIsImporting(true);
+      const fileUri = result.assets[0].uri;
+      const response = await fetch(fileUri);
+      const json = await response.text();
+
+      const preview = parseBackupPreview(json);
+      if (!preview) {
+        Alert.alert('Invalid File', 'This does not appear to be a valid PureBlock backup.');
+        return;
+      }
+
+      Alert.alert(
+        'Import Backup',
+        `Restore backup from ${new Date(preview.exportedAt).toLocaleDateString()}?\n\nThis will replace your current data with:\n• ${preview.profiles.length} profiles\n• ${preview.blockedApps.length} blocked apps\n• ${preview.blockedWebsites.length} blocked websites\n• ${preview.schedules.length} schedules\n• ${preview.locations.length} locations`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Import',
+            onPress: async () => {
+              const result = await importBackup(json);
+              if (result.success) {
+                Alert.alert('Import Complete', result.message);
+              } else {
+                Alert.alert('Import Failed', result.message);
+              }
+            },
+          },
+        ]
+      );
+    } catch {
+      Alert.alert('Import Failed', 'Could not read the backup file.');
+    } finally {
+      setIsImporting(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -95,6 +158,45 @@ export default function SettingsScreen() {
             </Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color={COLORS.gray60} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Data</Text>
+        <TouchableOpacity
+          style={styles.settingItem}
+          onPress={handleExport}
+          disabled={isExporting}
+        >
+          <View style={styles.settingInfo}>
+            <Text style={styles.settingLabel}>Export Backup</Text>
+            <Text style={styles.settingDescription}>
+              Save your profiles, blocked apps, and settings
+            </Text>
+          </View>
+          {isExporting ? (
+            <ActivityIndicator size="small" color={COLORS.primary} />
+          ) : (
+            <Ionicons name="download-outline" size={22} color={COLORS.primary} />
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.settingItem}
+          onPress={handleImport}
+          disabled={isImporting}
+        >
+          <View style={styles.settingInfo}>
+            <Text style={styles.settingLabel}>Import Backup</Text>
+            <Text style={styles.settingDescription}>
+              Restore from a previously exported backup
+            </Text>
+          </View>
+          {isImporting ? (
+            <ActivityIndicator size="small" color={COLORS.primary} />
+          ) : (
+            <Ionicons name="cloud-upload-outline" size={22} color={COLORS.primary} />
+          )}
         </TouchableOpacity>
       </View>
 
