@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, BackHandler } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import BlockingOverlay from '../components/BlockingOverlay';
 import { useAppStore } from '../store/StoreContext';
+import { COLORS } from '../theme';
 
 const MOTIVATIONAL_QUOTES = [
   { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
@@ -16,6 +18,7 @@ const MOTIVATIONAL_QUOTES = [
 ];
 
 export default function BlockerScreen() {
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const route = useRoute<any>();
   const { blockedApps } = useAppStore();
@@ -46,7 +49,7 @@ export default function BlockerScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
       <BlockingOverlay
         appName={appName}
         onDismiss={handleDismiss}
@@ -59,5 +62,6 @@ export default function BlockerScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: COLORS.background,
   },
 });

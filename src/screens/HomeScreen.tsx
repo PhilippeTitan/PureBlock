@@ -10,10 +10,22 @@ import { useAppStore } from '../store/StoreContext';
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
-  const { blockedApps, profiles, blockedWebsites } = useAppStore();
+  const { blockedApps, profiles, blockedWebsites, isBlocking, blockingSince, toggleBlocking } = useAppStore();
 
   const activeProfile = profiles.find(p => p.isActive);
   const hasBlockedApps = blockedApps.length > 0;
+
+  const getBlockingDuration = () => {
+    if (!blockingSince) return '';
+    const start = new Date(blockingSince);
+    const now = new Date();
+    const diffMs = now.getTime() - start.getTime();
+    const minutes = Math.floor(diffMs / 60000);
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours > 0) return `${hours}h ${mins}m`;
+    return `${mins}m`;
+  };
 
   return (
     <View style={styles.container}>
@@ -24,17 +36,45 @@ export default function HomeScreen() {
           { paddingBottom: insets.bottom + SPACING.lg }
         ]}
       >
-        <View style={styles.statusCard}>
-          <Text style={styles.statusLabel}>Blocking Status</Text>
-          <Text style={[styles.statusValue, hasBlockedApps && styles.statusActive]}>
-            {hasBlockedApps ? 'Active' : 'Inactive'}
+        <TouchableOpacity
+          style={[styles.statusCard, isBlocking && styles.statusCardActive]}
+          onPress={toggleBlocking}
+          activeOpacity={0.8}
+        >
+          <View style={styles.statusHeader}>
+            <Text style={styles.statusLabel}>Blocking Status</Text>
+            <View style={[styles.statusDot, isBlocking && styles.statusDotActive]} />
+          </View>
+          <Text style={[styles.statusValue, isBlocking && styles.statusActive]}>
+            {isBlocking ? 'Active' : 'Inactive'}
           </Text>
-          <Text style={styles.statusDetail}>
-            {activeProfile
-              ? `Profile: ${activeProfile.name}`
-              : 'No active blocking session'}
+          {isBlocking ? (
+            <Text style={styles.statusDetail}>
+              Blocking for {getBlockingDuration()}
+              {activeProfile ? ` • ${activeProfile.name}` : ''}
+            </Text>
+          ) : (
+            <Text style={styles.statusDetail}>
+              {hasBlockedApps
+                ? `${blockedApps.length} apps ready to block`
+                : 'No apps blocked yet'}
+            </Text>
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.quickBlockButton, isBlocking && styles.quickBlockButtonActive]}
+          onPress={toggleBlocking}
+        >
+          <Ionicons
+            name={isBlocking ? 'stop-circle' : 'play-circle'}
+            size={32}
+            color={COLORS.white}
+          />
+          <Text style={styles.quickBlockText}>
+            {isBlocking ? 'Stop Blocking' : 'Start Quick Block'}
           </Text>
-        </View>
+        </TouchableOpacity>
 
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
@@ -59,7 +99,7 @@ export default function HomeScreen() {
             style={styles.quickButton}
             onPress={() => navigation.navigate('Blocking')}
           >
-            <Ionicons name="add-circle" size={24} color={COLORS.white} />
+            <Ionicons name="add-circle" size={20} color={COLORS.white} />
             <Text style={styles.quickButtonText}>Add Blocked App</Text>
           </TouchableOpacity>
 
@@ -67,9 +107,9 @@ export default function HomeScreen() {
             style={[styles.quickButton, styles.quickButtonSecondary]}
             onPress={() => navigation.navigate('Profiles')}
           >
-            <Ionicons name="people-outline" size={24} color={COLORS.gray20} />
+            <Ionicons name="people-outline" size={20} color={COLORS.gray20} />
             <Text style={[styles.quickButtonText, styles.quickButtonTextSecondary]}>
-              Manage Profiles
+              Profiles
             </Text>
           </TouchableOpacity>
         </View>
@@ -99,12 +139,31 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     borderRadius: 12,
     padding: SPACING.lg,
-    marginBottom: SPACING.xl,
+    marginBottom: SPACING.md,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  statusCardActive: {
+    borderColor: COLORS.success,
+  },
+  statusHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.xs,
   },
   statusLabel: {
     fontSize: 14,
     color: COLORS.gray40,
-    marginBottom: SPACING.xs,
+  },
+  statusDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: COLORS.gray60,
+  },
+  statusDotActive: {
+    backgroundColor: COLORS.success,
   },
   statusValue: {
     fontSize: 24,
@@ -118,6 +177,24 @@ const styles = StyleSheet.create({
   statusDetail: {
     fontSize: 14,
     color: COLORS.gray40,
+  },
+  quickBlockButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.md,
+    backgroundColor: COLORS.primary,
+    borderRadius: 16,
+    paddingVertical: SPACING.lg,
+    marginBottom: SPACING.xl,
+  },
+  quickBlockButtonActive: {
+    backgroundColor: COLORS.error,
+  },
+  quickBlockText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: COLORS.white,
   },
   statsRow: {
     flexDirection: 'row',

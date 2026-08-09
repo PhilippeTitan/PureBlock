@@ -32,6 +32,8 @@ export interface AppState {
   isOnline: boolean;
   lastSync: string | null;
   isLoading: boolean;
+  isBlocking: boolean;
+  blockingSince: string | null;
 }
 
 export function useStore() {
@@ -45,6 +47,8 @@ export function useStore() {
     isOnline: false,
     lastSync: null,
     isLoading: true,
+    isBlocking: false,
+    blockingSince: null,
   });
 
   // Initialize: load local data, generate userId if needed
@@ -167,6 +171,31 @@ export function useStore() {
     return result;
   }, [state.userId]);
 
+  // --- Quick Block ---
+  const toggleBlocking = useCallback(async () => {
+    setState(s => ({
+      ...s,
+      isBlocking: !s.isBlocking,
+      blockingSince: !s.isBlocking ? new Date().toISOString() : null,
+    }));
+  }, []);
+
+  const startBlocking = useCallback(async () => {
+    setState(s => ({
+      ...s,
+      isBlocking: true,
+      blockingSince: new Date().toISOString(),
+    }));
+  }, []);
+
+  const stopBlocking = useCallback(async () => {
+    setState(s => ({
+      ...s,
+      isBlocking: false,
+      blockingSince: null,
+    }));
+  }, []);
+
   return {
     ...state,
     addProfile,
@@ -180,5 +209,8 @@ export function useStore() {
     deleteSchedule,
     updateSettings,
     sync,
+    toggleBlocking,
+    startBlocking,
+    stopBlocking,
   };
 }
