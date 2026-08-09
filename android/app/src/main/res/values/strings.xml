@@ -1,0 +1,4 @@
+<resources>
+  <string name="app_name">PureBlock</string>
+  <string name="accessibility_service_description">PureBlock uses this service to detect when blocked apps or websites are opened, so it can show a blocking screen and keep you focused.</string>
+</resources>
