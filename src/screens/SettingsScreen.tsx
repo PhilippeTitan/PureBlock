@@ -163,41 +163,34 @@ export default function SettingsScreen() {
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Data</Text>
-        <TouchableOpacity
-          style={styles.settingItem}
-          onPress={handleExport}
-          disabled={isExporting}
-        >
-          <View style={styles.settingInfo}>
-            <Text style={styles.settingLabel}>Export Backup</Text>
-            <Text style={styles.settingDescription}>
-              Save your profiles, blocked apps, and settings
-            </Text>
-          </View>
-          {isExporting ? (
-            <ActivityIndicator size="small" color={COLORS.primary} />
-          ) : (
-            <Ionicons name="download-outline" size={22} color={COLORS.primary} />
-          )}
-        </TouchableOpacity>
+        <Text style={styles.dataHint}>Save or restore your profiles, blocked apps, and settings.</Text>
+        <View style={styles.dataGrid}>
+          <TouchableOpacity
+            style={styles.dataCard}
+            onPress={handleExport}
+            disabled={isExporting}
+          >
+            {isExporting ? (
+              <ActivityIndicator size="small" color={COLORS.primary} />
+            ) : (
+              <Ionicons name="download-outline" size={22} color={COLORS.primary} />
+            )}
+            <Text style={styles.dataCardLabel}>Export</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.settingItem}
-          onPress={handleImport}
-          disabled={isImporting}
-        >
-          <View style={styles.settingInfo}>
-            <Text style={styles.settingLabel}>Import Backup</Text>
-            <Text style={styles.settingDescription}>
-              Restore from a previously exported backup
-            </Text>
-          </View>
-          {isImporting ? (
-            <ActivityIndicator size="small" color={COLORS.primary} />
-          ) : (
-            <Ionicons name="cloud-upload-outline" size={22} color={COLORS.primary} />
-          )}
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.dataCard}
+            onPress={handleImport}
+            disabled={isImporting}
+          >
+            {isImporting ? (
+              <ActivityIndicator size="small" color={COLORS.primary} />
+            ) : (
+              <Ionicons name="cloud-upload-outline" size={22} color={COLORS.primary} />
+            )}
+            <Text style={styles.dataCardLabel}>Import</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.section}>
@@ -257,5 +250,28 @@ const styles = StyleSheet.create({
   settingValue: {
     fontSize: 14,
     color: COLORS.gray40,
+  },
+  dataHint: {
+    fontSize: 12,
+    color: COLORS.gray40,
+    marginBottom: SPACING.sm,
+  },
+  dataGrid: {
+    flexDirection: 'row',
+    gap: SPACING.sm,
+  },
+  dataCard: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.sm,
+    backgroundColor: COLORS.surface,
+    borderRadius: 12,
+    paddingVertical: SPACING.lg,
+  },
+  dataCardLabel: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: COLORS.white,
   },
 });

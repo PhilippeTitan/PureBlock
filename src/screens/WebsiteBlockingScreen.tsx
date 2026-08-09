@@ -20,6 +20,13 @@ const SUGGESTED_URLS = [
   { label: ' Facebook', url: 'facebook.com' },
 ];
 
+const SOCIAL_DOMAINS = ['instagram', 'tiktok', 'twitter', 'x.com', 'facebook', 'reddit'];
+
+function getUrlStyle(url: string): { color: string } {
+  const isSocial = SOCIAL_DOMAINS.some(d => url.includes(d));
+  return { color: isSocial ? COLORS.secondary : COLORS.error };
+}
+
 export default function WebsiteBlockingScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
@@ -91,17 +98,20 @@ export default function WebsiteBlockingScreen() {
             </Text>
           </View>
         }
-        renderItem={({ item }) => (
-          <View style={styles.urlCard}>
-            <View style={styles.urlInfo}>
-              <Ionicons name="globe-outline" size={18} color={COLORS.primary} />
+        renderItem={({ item }) => {
+          const style = getUrlStyle(item.url);
+          return (
+            <View style={styles.urlCard}>
+              <View style={[styles.urlIcon, { backgroundColor: style.color + '20' }]}>
+                <Ionicons name="globe-outline" size={18} color={style.color} />
+              </View>
               <Text style={styles.urlText}>{item.url}</Text>
+              <TouchableOpacity onPress={() => removeBlockedWebsite(item.id)} hitSlop={8}>
+                <Ionicons name="close" size={20} color={COLORS.gray40} />
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={() => removeBlockedWebsite(item.id)}>
-              <Ionicons name="close-circle" size={24} color={COLORS.danger} />
-            </TouchableOpacity>
-          </View>
-        )}
+          );
+        }}
       />
 
       <Modal visible={showAddModal} animationType="slide" transparent>
@@ -202,19 +212,21 @@ const styles = StyleSheet.create({
   urlCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: SPACING.md,
     backgroundColor: COLORS.gray90,
     borderRadius: 12,
     padding: SPACING.md,
     marginBottom: SPACING.sm,
   },
-  urlInfo: {
-    flex: 1,
-    flexDirection: 'row',
+  urlIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    justifyContent: 'center',
     alignItems: 'center',
-    gap: SPACING.sm,
   },
   urlText: {
+    flex: 1,
     fontSize: 15,
     color: COLORS.white,
     fontWeight: '500',
