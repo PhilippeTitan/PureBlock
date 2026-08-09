@@ -16,6 +16,7 @@ import ScheduleScreen from './src/screens/ScheduleScreen';
 import BlockerScreen from './src/screens/BlockerScreen';
 import OnboardingScreen from './src/screens/OnboardingScreen';
 import WebsiteBlockingScreen from './src/screens/WebsiteBlockingScreen';
+import LocationProfilesScreen from './src/screens/LocationProfilesScreen';
 import { StoreProvider } from './src/store/StoreContext';
 import { COLORS } from './src/theme';
 import { isOnboardingComplete } from './src/store/localStore';
@@ -115,6 +116,11 @@ export default function App() {
                 <Stack.Screen
                   name="Websites"
                   component={WebsiteBlockingScreen}
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="LocationProfiles"
+                  component={LocationProfilesScreen}
                   options={{ headerShown: false }}
                 />
                 <Stack.Screen

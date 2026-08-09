@@ -167,6 +167,37 @@ export function useStore() {
     setState(s => ({ ...s, settings: merged }));
   }, [state.settings]);
 
+  // --- Locations ---
+  const addLocation = useCallback(async (name: string, latitude: number, longitude: number, radius: number, profileId: string) => {
+    const location: SavedLocation = {
+      id: generateId(),
+      name,
+      latitude,
+      longitude,
+      radius,
+      profileId,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+    };
+    await localAddLocation(location);
+    setState(s => ({ ...s, locations: [...s.locations, location] }));
+    return location;
+  }, []);
+
+  const deleteLocation = useCallback(async (id: string) => {
+    await localDeleteLocation(id);
+    setState(s => ({ ...s, locations: s.locations.filter(l => l.id !== id) }));
+  }, []);
+
+  const toggleLocation = useCallback(async (id: string) => {
+    setState(s => ({
+      ...s,
+      locations: s.locations.map(l =>
+        l.id === id ? { ...l, isActive: !l.isActive } : l
+      ),
+    }));
+  }, []);
+
   // --- Sync ---
   const sync = useCallback(async () => {
     if (!state.userId) return;
@@ -216,6 +247,9 @@ export function useStore() {
     deleteSchedule,
     updateSettings,
     sync,
+    addLocation,
+    deleteLocation,
+    toggleLocation,
     toggleBlocking,
     startBlocking,
     stopBlocking,

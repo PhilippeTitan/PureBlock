@@ -1,13 +1,16 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Switch } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, SPACING } from '../theme';
+import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
+import { COLORS, SPACING, BORDER_RADIUS } from '../theme';
 import ScreenHeader from '../components/ScreenHeader';
 import EmergencyUnlock from '../components/EmergencyUnlock';
 import { useAppStore } from '../store/StoreContext';
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
   const { settings, updateSettings } = useAppStore();
 
   return (
@@ -69,6 +72,22 @@ export default function SettingsScreen() {
             thumbColor={settings.notificationsEnabled ? COLORS.primary : COLORS.gray40}
           />
         </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Automation</Text>
+        <TouchableOpacity
+          style={styles.settingItem}
+          onPress={() => navigation.navigate('LocationProfiles' as never)}
+        >
+          <View style={styles.settingInfo}>
+            <Text style={styles.settingLabel}>Location Profiles</Text>
+            <Text style={styles.settingDescription}>
+              Auto-activate profiles based on your location
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={COLORS.gray60} />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.section}>
