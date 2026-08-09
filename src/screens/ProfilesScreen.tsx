@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import { COLORS, SPACING } from '../theme';
 import ScreenHeader from '../components/ScreenHeader';
 import { useAppStore } from '../store/StoreContext';
@@ -9,6 +10,7 @@ import { Profile } from '../types';
 
 export default function ProfilesScreen() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
   const { profiles, addProfile, deleteProfile, updateProfile } = useAppStore();
   const [newName, setNewName] = useState('');
 
@@ -34,7 +36,7 @@ export default function ProfilesScreen() {
 
   return (
     <View style={styles.container}>
-      <ScreenHeader title="Profiles" subtitle="Manage blocking profiles" />
+      <ScreenHeader title="Profiles" subtitle="Manage blocking profiles" onBack={() => navigation.goBack()} />
       <FlatList
         data={profiles}
         keyExtractor={(item) => item.id}

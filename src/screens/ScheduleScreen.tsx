@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import { COLORS, SPACING } from '../theme';
 import ScreenHeader from '../components/ScreenHeader';
 import { useAppStore } from '../store/StoreContext';
@@ -9,11 +10,12 @@ import { getDayName } from '../utils';
 
 export default function ScheduleScreen() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
   const { schedules, deleteSchedule } = useAppStore();
 
   return (
     <View style={styles.container}>
-      <ScreenHeader title="Schedule" subtitle="Time-based blocking rules" />
+      <ScreenHeader title="Schedule" subtitle="Time-based blocking rules" onBack={() => navigation.goBack()} />
       <FlatList
         data={schedules}
         keyExtractor={(item) => item.id}
