@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
-  FlatList,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -199,34 +198,33 @@ export default function OnboardingScreen() {
           <Text style={styles.loadingText}>Loading apps...</Text>
         </View>
       ) : (
-        <FlatList
-          data={allApps}
-          keyExtractor={item => item.packageName}
-          renderItem={({ item }) => {
-            const selected = selectedApps.includes(item.packageName);
-            return (
-              <TouchableOpacity
-                style={styles.appRow}
-                onPress={() => toggleApp(item.packageName)}
-                activeOpacity={0.7}
-              >
-                <View style={styles.appInfo}>
-                  <Text style={styles.appName}>{item.appName}</Text>
-                  <Text style={styles.appPackage}>{item.packageName}</Text>
-                </View>
-                <Ionicons
-                  name={selected ? 'checkmark-circle' : 'add-circle-outline'}
-                  size={24}
-                  color={selected ? COLORS.primary : COLORS.gray60}
-                />
-              </TouchableOpacity>
-            );
-          }}
-          style={styles.appList}
-          ListEmptyComponent={
+        <View style={styles.appList}>
+          {allApps.length === 0 ? (
             <Text style={styles.emptyText}>No apps found</Text>
-          }
-        />
+          ) : (
+            allApps.map(item => {
+              const selected = selectedApps.includes(item.packageName);
+              return (
+                <TouchableOpacity
+                  key={item.packageName}
+                  style={styles.appRow}
+                  onPress={() => toggleApp(item.packageName)}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.appInfo}>
+                    <Text style={styles.appName}>{item.appName}</Text>
+                    <Text style={styles.appPackage}>{item.packageName}</Text>
+                  </View>
+                  <Ionicons
+                    name={selected ? 'checkmark-circle' : 'add-circle-outline'}
+                    size={24}
+                    color={selected ? COLORS.primary : COLORS.gray60}
+                  />
+                </TouchableOpacity>
+              );
+            })
+          )}
+        </View>
       )}
       <TouchableOpacity style={styles.primaryButton} onPress={handleNext}>
         <Text style={styles.primaryButtonText}>
