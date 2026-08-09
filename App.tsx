@@ -12,6 +12,7 @@ import StatsScreen from './src/screens/StatsScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import ProfilesScreen from './src/screens/ProfilesScreen';
 import ScheduleScreen from './src/screens/ScheduleScreen';
+import { StoreProvider } from './src/store/StoreContext';
 import { COLORS } from './src/theme';
 
 const Tab = createBottomTabNavigator();
@@ -65,35 +66,37 @@ function TabNavigator() {
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen
-            name="Main"
-            component={TabNavigator}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Profiles"
-            component={ProfilesScreen}
-            options={{
-              title: 'Blocking Profiles',
-              headerStyle: { backgroundColor: COLORS.gray95 },
-              headerTintColor: COLORS.white,
-            }}
-          />
-          <Stack.Screen
-            name="Schedule"
-            component={ScheduleScreen}
-            options={{
-              title: 'Schedule',
-              headerStyle: { backgroundColor: COLORS.gray95 },
-              headerTintColor: COLORS.white,
-            }}
-          />
-        </Stack.Navigator>
-        <StatusBar style="light" />
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <StoreProvider>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen
+              name="Main"
+              component={TabNavigator}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Profiles"
+              component={ProfilesScreen}
+              options={{
+                title: 'Blocking Profiles',
+                headerStyle: { backgroundColor: COLORS.gray95 },
+                headerTintColor: COLORS.white,
+              }}
+            />
+            <Stack.Screen
+              name="Schedule"
+              component={ScheduleScreen}
+              options={{
+                title: 'Schedule',
+                headerStyle: { backgroundColor: COLORS.gray95 },
+                headerTintColor: COLORS.white,
+              }}
+            />
+          </Stack.Navigator>
+          <StatusBar style="light" />
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </StoreProvider>
   );
 }

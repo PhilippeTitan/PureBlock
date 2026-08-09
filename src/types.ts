@@ -2,41 +2,59 @@ export interface App {
   packageName: string;
   name: string;
   icon?: string;
-  isBlocked: boolean;
 }
 
 export interface BlockedApp {
-  packageName: string;
+  id: string;
   profileId: string;
-  addedAt: string;
+  packageName: string;
+  appName: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface BlockedWebsite {
+  id: string;
+  profileId: string;
+  url: string;
+  isActive: boolean;
+  createdAt: string;
 }
 
 export interface Profile {
   id: string;
   name: string;
   isActive: boolean;
-  color: string;
-  blockedApps: string[];
-  blockedWebsites: string[];
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface Schedule {
   id: string;
   profileId: string;
-  name: string;
-  days: number[]; // 0-6 (Sun-Sat)
+  dayOfWeek: number; // 0-6 (Sun-Sat)
   startTime: string; // "HH:mm"
   endTime: string; // "HH:mm"
   isActive: boolean;
+  createdAt: string;
 }
 
 export interface BlockSession {
   id: string;
-  profileId: string;
+  userId: string;
+  profileId?: string;
   startedAt: string;
   endedAt?: string;
-  blockedCount: number;
+  isActive: boolean;
+}
+
+export interface BlockedAttempt {
+  id: string;
+  userId: string;
+  appPackage?: string;
+  url?: string;
+  blockedAt: string;
+  sessionId?: string;
 }
 
 export interface Stats {
@@ -49,8 +67,7 @@ export interface Stats {
 
 export interface Settings {
   strictMode: boolean;
-  pinCode?: string;
-  quickBlockEnabled: boolean;
+  pinHash?: string;
   notificationsEnabled: boolean;
-  dailyReportEnabled: boolean;
+  theme: 'dark' | 'light';
 }
