@@ -130,6 +130,13 @@ android {
     androidResources {
         ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~'
     }
+
+    applicationVariants.configureEach { variant ->
+        variant.outputs.configureEach {
+            def versionName = variant.versionName ?: "1"
+            outputFileName = "pureblock v${versionName}.apk"
+        }
+    }
 }
 
 // Apply static values from `gradle.properties` to the `android.packagingOptions`

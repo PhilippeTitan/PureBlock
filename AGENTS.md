@@ -119,6 +119,13 @@ This project has a persistent knowledge base at `NOTES/`. Use it:
 - **Frontend IP**: Changes with network. Check `ipconfig` for current Wi-Fi IPv4.
 - **Native Android**: Requires Android Studio for Kotlin module builds
 - **Testing**: Real Android device required for blocking features
+- **APK output**: `C:\Users\drato\Downloads\PureBlock\pureblock v#.apk`
+- **Local APK build**: JDK 17 at `C:\tools\jdk-17.0.13+11`, Android SDK at `C:\Users\drato\AppData\Local\Android\Sdk`. Run from `android/` directory.
+  - **Command**: `.\gradlew.bat assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a -x lintVitalRelease -x lintRelease`
+  - **Set env first**: `set JAVA_HOME=C:\tools\jdk-17.0.13+11 && set ANDROID_HOME=C:\Users\drato\AppData\Local\Android\Sdk`
+  - **First build takes 20-30 min** (downloads Gradle, NDK, CMake). Subsequent builds ~5-10 min.
+  - **After build, copy APK**: `Copy-Item 'android\app\build\outputs\apk\release\pureblock v1.apk' 'C:\Users\drato\Downloads\PureBlock\'`
+  - **DO NOT use** `eas build --local` — does NOT work on Windows (requires macOS/Linux).
 
 ## MCP Integrations (OpenCode)
 | MCP | Status | What It Does |
